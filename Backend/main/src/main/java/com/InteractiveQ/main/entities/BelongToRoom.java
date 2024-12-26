@@ -12,23 +12,18 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 @ToString
 public class BelongToRoom {
-    @Id
-    @Column(name = "room_id")
-    private Integer roomId;
-
-    @Id
-    @Column(name = "user_id")
-    private String userId;
 
     @Column(name = "is_authenticated")
     private Boolean isAuthenticated;
     @Column(name = "is_exited")
     private Boolean isExited;
 
+    @Id
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private Person person;
 
+    @Id
     @ManyToOne
     @JoinColumn(name = "room_id", referencedColumnName = "room_id", insertable = false, updatable = false)
     private Room room;
