@@ -13,19 +13,13 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 @ToString
 public class Vote {
-    @Id
-    @Column(name = "user_id")
-    private String userId;
 
     @Id
-    @Column(name = "opt_id")
-    private Integer optId;
-
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private Person person;
 
-
+    @Id
     @ManyToOne
     @JoinColumn(name = "opt_id", referencedColumnName = "opt_id", insertable = false, updatable = false)
     private PollOption option;
