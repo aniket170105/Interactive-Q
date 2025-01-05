@@ -11,7 +11,7 @@ import ChatPage from './Pages/ChatPage/ChatPage'
 function App() {
 
   return (
-    <SignInPage/>
+    <ChatPage/>
   )
 }
 
