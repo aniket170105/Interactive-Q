@@ -6,11 +6,12 @@ import { Route } from 'react-router-dom'
 import HomePage from './Pages/HomePage'
 import SignInPage from './Pages/SignInPage'
 import SignUpPage from './Pages/SignUpPage'
+import ChatPage from './Pages/ChatPage/ChatPage'
 
 function App() {
 
   return (
-    <SignUpPage/>
+    <SignInPage/>
   )
 }
 

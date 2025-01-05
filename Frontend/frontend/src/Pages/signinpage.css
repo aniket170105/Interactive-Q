@@ -22,7 +22,7 @@ body {
 }
 
 .form-wrapper {
-    background-color: #111;
+    background-color: #000000;
     padding: 24px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -31,7 +31,7 @@ body {
 .header {
     /* margin-bottom: 24px; */
     display: flex;
-    background-color: #111;
+    background-color: #000000;
     justify-content: center;
 }
 
