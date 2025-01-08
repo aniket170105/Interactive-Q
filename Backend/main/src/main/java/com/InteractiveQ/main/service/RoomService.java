@@ -8,6 +8,7 @@ import com.InteractiveQ.main.entities.Room;
 import com.InteractiveQ.main.repository.BelongToRoomRepository;
 import com.InteractiveQ.main.repository.PersonRepository;
 import com.InteractiveQ.main.repository.RoomRepository;
+import jakarta.transaction.Transactional;
 import org.aspectj.weaver.patterns.PerObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class RoomService {
     PersonService personService;
 
 //    This function is used to Create a Room. If room is created successfully room is returned else null;
+    @Transactional
     public Room createRoom(Person user, String roomName){
         Room newRoom = new Room();
         newRoom.setRoomName(roomName);
@@ -67,9 +69,13 @@ public class RoomService {
 
 //    This function is used to rename the name of a particular Room
 //    Note that it should be already checked if user is admin of group or not. (Should be written in API controller)
-    public void renameRoom(Room room, String newName){
-        room.setRoomName(newName);
-        roomRepository.save(room);
+    public Room renameRoom(Integer roomId, String newName, Person person){
+        Room room = roomRepository.findByRoomId(roomId).get();
+        if(room.getAdmin().getUserId().equals(person.getUserId())){
+            room.setRoomName(newName);
+            return roomRepository.save(room);
+        }
+        throw new RuntimeException("You are Not Admin");
     }
 
 //    After joining a room it need to be authenticated by the admin__
@@ -80,6 +86,9 @@ public class RoomService {
         if(temp.isPresent()) {
             temp.get().setIsAuthenticated(true);
             belongToRoomRepository.save(temp.get());
+        }
+        else{
+            throw new RuntimeException("No such Room exist");
         }
     }
 
@@ -107,6 +116,18 @@ public class RoomService {
         return validMember;
     }
 
+//    This is similar to above Two because we do not need it we can do that in frontend itself.
+//    Not that if a user left the group then also we are including it in the list we can do whatever we want
+//    with them in frontend
+    public List<Person> allMemberOfARoom(Room room){
+        List <BelongToRoom> roomMember = belongToRoomRepository.findByRoom(room);
+        List <Person> validMember = new ArrayList<>();
+        for (BelongToRoom belongToRoom : roomMember) {
+            validMember.add(belongToRoom.getPerson());
+        }
+        return validMember;
+    }
+
 //    This function remove a user from a group
 //    Note that this function can only be called by the admin. So, before calling this check whether
 //    it is called by admin or not
@@ -127,4 +148,13 @@ public class RoomService {
             belongToRoomRepository.save(temp.get());
         }
     }
+
+
+//
+    public Optional<Room> getRoom(Integer roomId){
+        return roomRepository.findByRoomId(roomId);
+    }
+
+//    public Boolean checkIfRoomAlreadyEnded
+
 }

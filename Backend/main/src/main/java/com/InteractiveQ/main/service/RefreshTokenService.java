@@ -19,7 +19,8 @@ public class RefreshTokenService {
     @Autowired
     SessionTokenRepository sessionTokenRepository;
 
-    public SessionToken createSessionToken(Person person){
+    public SessionToken createSessionToken(String userId){
+        Person person = personRepository.findByUserId(userId).get();
         SessionToken sessionToken = new SessionToken();
         sessionToken.setToken(UUID.randomUUID().toString());
         sessionToken.setPerson(person);

@@ -1,18 +1,16 @@
 package com.InteractiveQ.main.service.message;
 
 
-import com.InteractiveQ.main.entities.Message;
-import com.InteractiveQ.main.entities.PollOption;
-import com.InteractiveQ.main.entities.Room;
+import com.InteractiveQ.main.entities.*;
 import com.InteractiveQ.main.model.MessageDTO;
-import com.InteractiveQ.main.repository.MessageRepository;
-import com.InteractiveQ.main.repository.PollOptionRepository;
+import com.InteractiveQ.main.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /*
 Please note that before calling this service, Room and Message.room_id should be same
@@ -26,6 +24,32 @@ public class MessageService {
     MessageRepository messageRepository;
     @Autowired
     PollOptionRepository pollOptionRepository;
+    @Autowired
+    BelongToRoomRepository belongToRoomRepository;
+    @Autowired
+    PersonRepository personRepository;
+    @Autowired
+    RoomRepository roomRepository;
+
+    public Boolean isUserBelongToRoom(String userId, Integer roomId){
+        Optional<BelongToRoom> belongToRoom = belongToRoomRepository.findById(new BelongToRoomId(personRepository.findByUserId(userId).get(),
+                roomRepository.findByRoomId(roomId).get()));
+        if(belongToRoom.isPresent() && !belongToRoom.get().getIsExited() && belongToRoom.get().getIsAuthenticated()){
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean isMessageBelongToSameRoomAsUser(Integer messageId, String userId){
+        Optional<Message> message = messageRepository.findById(messageId);
+        Optional<Person> user = personRepository.findByUserId(userId);
+        if(message.isPresent() && user.isPresent()){
+            Optional <BelongToRoom> belongToRoom = belongToRoomRepository.findById(new BelongToRoomId(user.get(),
+                    message.get().getRoom()));
+            return belongToRoom.isPresent();
+        }
+        return false;
+    }
 
 //    This function will save a message in the database. Before calling this note that above
 //    criteria is fullfilled
@@ -60,6 +84,11 @@ public class MessageService {
             result.add(messageDTO);
         }
         return result;
+    }
+
+
+    public Optional<Message> getMessageById(Integer messageId){
+        return messageRepository.findById(messageId);
     }
 
 
