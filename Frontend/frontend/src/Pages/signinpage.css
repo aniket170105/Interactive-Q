@@ -21,6 +21,15 @@ body {
     text-align: center;
 }
 
+.error {
+    background-color: #ffe4e4;
+    color: #ff0000;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    margin-bottom: 16px;
+}
+
 .form-wrapper {
     background-color: #000000;
     padding: 24px;

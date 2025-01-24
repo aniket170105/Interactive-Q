@@ -21,6 +21,10 @@ public class RefreshTokenService {
 
     public SessionToken createSessionToken(String userId){
         Person person = personRepository.findByUserId(userId).get();
+        Optional<SessionToken> temp = sessionTokenRepository.findByPerson(person);
+        if(temp.isPresent()){
+            sessionTokenRepository.delete(temp.get());
+        }
         SessionToken sessionToken = new SessionToken();
         sessionToken.setToken(UUID.randomUUID().toString());
         sessionToken.setPerson(person);
