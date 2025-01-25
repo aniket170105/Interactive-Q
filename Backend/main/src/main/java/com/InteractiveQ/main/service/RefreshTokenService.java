@@ -28,7 +28,7 @@ public class RefreshTokenService {
         SessionToken sessionToken = new SessionToken();
         sessionToken.setToken(UUID.randomUUID().toString());
         sessionToken.setPerson(person);
-        sessionToken.setExpiryDate(Instant.now().plusMillis(600000));
+        sessionToken.setExpiryDate(Instant.now().plusMillis(6000000));
 
         return sessionTokenRepository.save(sessionToken);
     }

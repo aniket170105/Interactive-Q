@@ -191,6 +191,4 @@ public class RoomController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You Cannot Leave You Are Admin");
     }
-
-
 }
