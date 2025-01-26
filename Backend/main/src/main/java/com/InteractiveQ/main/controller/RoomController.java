@@ -1,6 +1,7 @@
 package com.InteractiveQ.main.controller;
 
 
+import com.InteractiveQ.main.entities.BelongToRoom;
 import com.InteractiveQ.main.entities.Person;
 import com.InteractiveQ.main.entities.Room;
 import com.InteractiveQ.main.request.room.AddUserToGroupDTO;
@@ -129,13 +130,16 @@ public class RoomController {
         if(user.isPresent() && room.isPresent() && userToBeAuthenticated.isPresent()
          && room.get().getAdmin().getUserId().equals(user.get().getUserId())){
             roomService.authenticateJoinRoom(room.get(), userToBeAuthenticated.get());
+            return ResponseEntity.status(HttpStatus.OK).body("Successfully Added User");
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(null);
+        else{
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(null);
+        }
     }
 
-    @GetMapping("user/room/allUser")
-    public ResponseEntity<List<Person>> allMembers(
+    @PostMapping("user/room/allUser")
+    public ResponseEntity<List<BelongToRoom>> allMembers(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
             @RequestBody JoinRoomDTO joinRoomDTO
     ){
@@ -163,6 +167,9 @@ public class RoomController {
         if(user.isPresent() && room.isPresent() && userToBeRemoved.isPresent() &&
             user.get().getUserId().equals(room.get().getAdmin().getUserId())
         ){
+            if(userToBeRemoved.get().getUserId().equals(room.get().getAdmin().getUserId())){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You are Admin you cannot remove yourself");
+            }
             roomService.removeUserFromRoom(room.get(), userToBeRemoved.get());
             return ResponseEntity.status(HttpStatus.OK).body("Successfully Removed User");
         }

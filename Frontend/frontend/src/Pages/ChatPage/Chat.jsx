@@ -176,24 +176,6 @@ const Chat = () => {
                     );
                 })}
             </div>
-            {/* <div className="chat-input" style={{
-                padding: "16px",
-                background: "#1e1e1e",
-                position: "sticky",
-                bottom: "0",
-                zIndex: 10,
-            }}>
-                <input
-                    type="text"
-                    placeholder="Enter a message..."
-                    style={{
-                        width: "100%",
-                        padding: "8px",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                    }}
-                />
-            </div> */}
             <ChatInput/>
         </div>
     );

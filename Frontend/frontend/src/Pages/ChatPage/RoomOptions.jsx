@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MemberSidebar from "./MemberSidebar";
+import { use } from "react";
 
 const onOptionSelect = (option, setShowMembers) => {
     if(option === "members"){
@@ -7,42 +8,98 @@ const onOptionSelect = (option, setShowMembers) => {
     }
 };
 
-const RoomOptions = () => {
+const fetchMemebers = async (room) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    console.log(room.roomId);
+    const response = await fetch('http://localhost:8081/user/room/allUser', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "roomId": room.roomId }),
+    });
+    if (response.ok) {
+        return await response.json();
+    }
+    else {
+        console.log("Error Encoutered while creating Room");
+        return [];
+    }
+};
+
+const removeUser = async (userId, roomId) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/removeUser', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "roomId": roomId, "userId": userId }),
+    });
+    if(response.ok){
+        console.log("User Removed");
+    }
+    else{
+        console.log("Error while removing user");
+        alert(await response.text());
+    }
+};
+const acceptUser = async (userId, roomId) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/authenticateUser', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "roomId": roomId, "userId": userId }),
+    });
+    if(response.ok){
+        console.log("User Accepted");
+    }
+    else{
+        console.log("Error while accepting user");
+        alert("You are not authorized to perform this action");
+    }
+};
+
+const RoomOptions = ({room}) => {
     const [showOptions, setShowOptions] = useState(false);
     const [showMembers, setShowMembers] = useState(false);
+    const [members, setMembers] = useState([]);
+    const [refreshMemebers, setRefreshMembers] = useState(false);
+
+    const memberRemoveAddRejectAction = async (action, userId) => {
+        if(action === "accept"){
+            console.log(room);
+            acceptUser(userId, room.roomId);
+            setRefreshMembers(!refreshMemebers);
+        }
+        else if(action === "reject"){
+            removeUser(userId, room.roomId);
+            setRefreshMembers(!refreshMemebers);
+        }
+        else if(action === "remove"){
+            removeUser(userId, room.roomId);
+            setRefreshMembers(!refreshMemebers);
+        }
+    };
+
+    useEffect(() => {
+        if(showMembers){
+            fetchMemebers(room).then((data) => {
+                setMembers(data);
+            });
+        }
+    }, [showMembers, room, refreshMemebers]);
 
     const handleOptionClick = (option) => {
         setShowOptions(false); // Close dropdown
         onOptionSelect(option, setShowMembers); // Pass selected option
     };
 
-    const members = [
-        {
-            person: { userId: 1, name: "Alice Johnson" },
-            isAuthenticated: true,
-            isExited: false,
-        },
-        {
-            person: { userId: 2, name: "Bob Smith" },
-            isAuthenticated: false,
-            isExited: false,
-        },
-        {
-            person: { userId: 3, name: "Charlie Brown" },
-            isAuthenticated: true,
-            isExited: false,
-        },
-        {
-            person: { userId: 4, name: "Daisy Ridley" },
-            isAuthenticated: false,
-            isExited: true,
-        },
-        {
-            person: { userId: 5, name: "Ethan Hunt" },
-            isAuthenticated: true,
-            isExited: false,
-        },
-    ];
 
     return (
         <div style={{ position: "relative" }}>
@@ -99,7 +156,9 @@ const RoomOptions = () => {
                 <MemberSidebar
                     members={members}
                     onClose={()=>{setShowMembers(false)}}
-                    handleMemberAction={(e)=>{}}
+                    handleMemberAction={(action, userId)=>{
+                        memberRemoveAddRejectAction(action, userId);
+                    }}
                 />
             )}
         </div>

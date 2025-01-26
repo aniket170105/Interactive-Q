@@ -119,13 +119,13 @@ public class RoomService {
 //    This is similar to above Two because we do not need it we can do that in frontend itself.
 //    Not that if a user left the group then also we are including it in the list we can do whatever we want
 //    with them in frontend
-    public List<Person> allMemberOfARoom(Room room){
+    public List<BelongToRoom> allMemberOfARoom(Room room){
         List <BelongToRoom> roomMember = belongToRoomRepository.findByRoom(room);
-        List <Person> validMember = new ArrayList<>();
-        for (BelongToRoom belongToRoom : roomMember) {
-            validMember.add(belongToRoom.getPerson());
-        }
-        return validMember;
+//        List <Person> validMember = new ArrayList<>();
+//        for (BelongToRoom belongToRoom : roomMember) {
+//            validMember.add(belongToRoom.getPerson());
+//        }
+        return roomMember;
     }
 
 //    This function remove a user from a group

@@ -65,6 +65,25 @@ const joinGroupAPI = async (roomName) => {
     }
 };
 
+const joinNewGroupAPI = async (roomId) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/joinRoom', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "roomId": roomId }),
+    });
+
+    if (response.ok) {
+        console.log("Room Joined succesfully");
+    }
+    else {
+        console.log("Error Encoutered while creating Room");
+    }
+};
+
 const chatPage = () => {
     const [isNewChat, setIsNewChat] = useState(false);
     const [newGroupName, setNewGroupName] = useState("");
@@ -109,6 +128,7 @@ const chatPage = () => {
 
     const handleJoinGroup = () => {
         console.log("Group joined:", joinGroupName);
+        joinNewGroupAPI(Number.parseInt(joinGroupName));
         setJoinGroupName("");
         setIsJoinGroup(false);
     };
@@ -171,53 +191,6 @@ const chatPage = () => {
                         </div>
                     </div>
                     <RoomPage room={selectedRoom}/>
-                    {/* <div className="chat-window">
-                        <div className="chat-header">
-                            <h2>DEMO FOR YOUTUBE</h2>
-                            <div className="options-menu">
-                                <span className="eye-icon">
-                                    <img
-                                        src="three-dots-vertical-svgrepo-com.svg"
-                                        alt="Details"
-                                        id="view-members"
-                                    />
-                                </span>
-                                <div className="dropdown-content">
-                                    <button>Exit Group</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="chat-content" id="chat-content">
-                            <p>No messages yet...</p>
-                        </div>
-                        <div className="chat-input">
-                            <input
-                                type="text"
-                                placeholder="Enter a message..."
-                            />
-                        </div>
-                        {/* <div className="group-members" id="group-members" style={{ display: 'none' }}>
-                            <button id="close-members" className="close-members">✖</button>
-                            <ul id="members-list">
-                                <li>
-                                    <span>Piyush</span>
-                                    <button className="remove-member">Remove</button>
-                                </li>
-                                <li>
-                                    <span>Guest User</span>
-                                    <button className="remove-member">Remove</button>
-                                </li>
-                                <li>
-                                    <span>Time</span>
-                                    <button className="remove-member">Remove</button>
-                                </li>
-                                <li>
-                                    <span>RoadSide Coder Fam</span>
-                                    <button className="remove-member">Remove</button>
-                                </li>
-                            </ul>
-                        </div> */
-                        }
                 </div>
             </div>
             {isNewChat && (
