@@ -1,9 +1,50 @@
 import React, { useState } from "react";
 
-const ChatInput = () => {
+
+const sendMessage = async (message, isAnonymous, roomId) => {
+  const refreshToken = localStorage.getItem('refreshToken');
+  const response = await fetch('http://localhost:8081/user/room/message/send', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${refreshToken}`
+    },
+    body: JSON.stringify({"isAnonymous" : isAnonymous, "text": message, "isPoll": false, "roomId": roomId}),
+  });
+  if(response.ok){
+    console.log("Message sent successfully!");
+  }
+  else{
+    // console.log("Error while sending message");
+    alert(await response.text());
+  }
+};
+
+const sendPoll = async (pollQuestion, pollOptions, isAnonymous, roomId) => {
+  const refreshToken = localStorage.getItem('refreshToken');
+  const response = await fetch('http://localhost:8081/user/room/poll/send', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${refreshToken}`
+    },
+    body: JSON.stringify({"isAnonymous" : isAnonymous, "text": pollQuestion, "pollOptions": pollOptions, "roomId": roomId, "isPoll": true}),
+  });
+  if(response.ok){
+    console.log("Poll sent successfully!");
+  }
+  else{
+    // console.log("Error while sending message");
+    alert(await response.text());
+  }
+};
+
+const ChatInput = ({room}) => {
   const [isNewPoll, setIsNewPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState([""]);
   const [pollQuestion, setPollQuestion] = useState("");
+  const [newMessage, setNewMessage] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const handleAddOption = () => {
     setPollOptions([...pollOptions, ""]);
@@ -18,6 +59,7 @@ const ChatInput = () => {
   const handlePollSend = () => {
     console.log("Poll Question:", pollQuestion);
     console.log("Poll Options:", pollOptions);
+    sendPoll(pollQuestion, pollOptions, isAnonymous, room.roomId);
     setIsNewPoll(false); // Close modal
   };
 
@@ -25,6 +67,11 @@ const ChatInput = () => {
     setIsNewPoll(false); // Close modal
     setPollOptions([""]); // Reset options
     setPollQuestion(""); // Reset question
+  };
+
+  const handleSendMessage = () => {
+    sendMessage(newMessage, isAnonymous, room.roomId);
+    setNewMessage("");
   };
 
   return (
@@ -54,9 +101,23 @@ const ChatInput = () => {
         >
           +
         </button>
+        <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <input
+            type="checkbox"
+            checked={isAnonymous}
+            onChange={() => setIsAnonymous(!isAnonymous)}
+            style={{
+              transform: "scale(1.2)",
+              cursor: "pointer",
+            }}
+          />
+          <span style={{ color: "#d3d3d3", fontSize: "14px"}}>Anonymous</span>
+        </label>
         <input
           type="text"
           placeholder="Enter a message..."
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
           style={{
             flex: 1,
             padding: "8px",
@@ -67,6 +128,7 @@ const ChatInput = () => {
           }}
         />
         <button
+          onClick={handleSendMessage}
           style={{
             backgroundColor: "#444",
             color: "#d3d3d3",

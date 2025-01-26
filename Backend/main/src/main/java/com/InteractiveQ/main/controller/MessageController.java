@@ -105,9 +105,9 @@ public class MessageController {
             message.setIsAnonymous(requestPollDTO.getIsAnonymous());
             message.setIsPoll(requestPollDTO.getIsPoll());
             List <PollOption> pollOptions = new ArrayList<>();
-            for(RequestPollOptionDTO requestPollOptionDTO : requestPollDTO.getPollOptions()){
+            for(String requestPollOptionDTO : requestPollDTO.getPollOptions()){
                 PollOption pollOption = new PollOption();
-                pollOption.setOptText(requestPollOptionDTO.getOptText());
+                pollOption.setOptText(requestPollOptionDTO);
                 pollOptions.add(pollOption);
             }
             messageService.saveMessage(message, pollOptions);
@@ -116,7 +116,7 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred while Saving Poll");
     }
 
-    @GetMapping("user/room/getMessages")
+    @PostMapping("user/room/getMessages")
     public ResponseEntity<List<MessageDTO>> getAllMessages(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
             @RequestBody RequestAllMessagesDTO requestAllMessagesDTO

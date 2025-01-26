@@ -1,65 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ChatInput from "./MessageSend";
 
-const mockData = [
-    {
-        message: {
-            messageId: 1,
-            isAnonymous: false,
-            isPoll: false,
-            text: "Hi, how are you?",
-            isDeleted: false,
-            postTime: "2025-01-25T10:00:00Z",
-            user: { userId: 1, name: "Alice", isCurrentUser: false },
-        },
-        pollOptions: [],
-    },
-    {
-        message: {
-            messageId: 2,
-            isAnonymous: true,
-            isPoll: false,
-            text: "I'm doing great! How about you?",
-            isDeleted: false,
-            postTime: "2025-01-25T10:05:00Z",
-            user: { userId: 2, name: "Bob", isCurrentUser: true },
-        },
-        pollOptions: [],
-    },
-    {
-        message: {
-            messageId: 3,
-            isAnonymous: false,
-            isPoll: true,
-            text: "What's your favorite programming language?",
-            isDeleted: false,
-            postTime: "2025-01-25T10:10:00Z",
-            user: { userId: 1, name: "Alice", isCurrentUser: false },
-        },
-        pollOptions: [
-            { optId: 1, optText: "JavaScript" },
-            { optId: 2, optText: "Python" },
-            { optId: 3, optText: "Java" },
-            { optId: 4, optText: "C++" },
-        ],
-    },
-    {
-        message: {
-            messageId: 4,
-            isAnonymous: false,
-            isPoll: false,
-            text: "Hi, how are you?",
-            isDeleted: false,
-            postTime: "2025-01-25T10:00:00Z",
-            user: { userId: 1, name: "Alice", isCurrentUser: false },
-        },
-        pollOptions: [],
-    }
-];
 const fetchMessages = async (roomId) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/getMessages', {
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             "Authorization": `Bearer ${refreshToken}`
@@ -75,13 +20,15 @@ const fetchMessages = async (roomId) => {
     }
 };
 
-const Chat = () => {
+const Chat = ({room}) => {
     const [messages, setMessages] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null); // To track dropdown states
 
     // Mock API call to fetch messages
     useEffect(() => {
-        setMessages(mockData);
+        fetchMessages(room.roomId).then((data) => {
+            setMessages(data);
+        });
     }, []);
 
     const toggleDropdown = (messageId) => {
@@ -101,8 +48,8 @@ const Chat = () => {
                 style={{ flex: 1, overflowY: "auto", padding: "16px", backgroundColor: "#1e1e1e", color: "#e0e0e0", maxHeight: "calc(100vh - 40vh)" }}
             >
                 {messages.map((messageDTO) => {
-                    const { message, pollOptions } = messageDTO;
-                    const isSent = message.user?.isCurrentUser; // Replace with your user logic
+                    const { message, pollOptions, isCurrentUser} = messageDTO;
+                    const isSent = isCurrentUser; // Replace with your user logic
                     return (
                         <div
                             key={message.messageId}
@@ -194,7 +141,7 @@ const Chat = () => {
                     );
                 })}
             </div>
-            <ChatInput/>
+            <ChatInput room={room}/>
         </div>
     );
 };

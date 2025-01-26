@@ -21,7 +21,7 @@ const RoomPage = ({ room }) => {
                     </span>
                 </div>
             </div>
-            <Chat/>
+            <Chat room={room}/>
         </div>
     );
 };

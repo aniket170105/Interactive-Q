@@ -24,5 +24,5 @@ public class RequestPollDTO {
 
     private Integer roomId;
 
-    private List<RequestPollOptionDTO> pollOptions;
+    private List<String> pollOptions;
 }
