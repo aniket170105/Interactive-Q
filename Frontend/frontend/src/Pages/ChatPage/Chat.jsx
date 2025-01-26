@@ -56,6 +56,24 @@ const mockData = [
         pollOptions: [],
     }
 ];
+const fetchMessages = async (roomId) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/getMessages', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "roomId": roomId}),
+    });
+    if(response.ok){
+        return await response.json();
+    }
+    else{
+        console.log("Error while fetching messages");
+        return [];
+    }
+};
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);

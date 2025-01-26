@@ -130,7 +130,7 @@ public class MessageController {
         Optional<Person> user = personService.userProfile(username);
         Optional<Room> room = roomService.getRoom(requestAllMessagesDTO.getRoomId());
         if (user.isPresent() && room.isPresent() && messageService.isUserBelongToRoom(username, requestAllMessagesDTO.getRoomId())) {
-            return ResponseEntity.status(HttpStatus.OK).body(messageService.fetchMessagesWithPolls(room.get()));
+            return ResponseEntity.status(HttpStatus.OK).body(messageService.fetchMessagesWithPolls(room.get(), user.get()));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
@@ -156,5 +156,4 @@ public class MessageController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred");
     }
-
 }

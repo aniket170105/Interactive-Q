@@ -6,6 +6,15 @@ const onOptionSelect = (option, setShowMembers) => {
     if(option === "members"){
         setShowMembers(true);
     }
+    else if(option === "leave"){
+        console.log("Leave Group");
+    }
+    else if(option === "rename"){
+        console.log("Rename Group");
+    }
+    else if(option === "end"){
+        console.log("End Group");
+    }
 };
 
 const fetchMemebers = async (room) => {
@@ -27,7 +36,6 @@ const fetchMemebers = async (room) => {
         return [];
     }
 };
-
 const removeUser = async (userId, roomId) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/removeUser', {
@@ -64,12 +72,68 @@ const acceptUser = async (userId, roomId) => {
         alert("You are not authorized to perform this action");
     }
 };
+const renameGroup = async (roomId, newGroupName) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/rename', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "roomId": roomId, "newName": newGroupName }),
+    });
+    if(response.ok){
+        console.log("Group Renamed");
+    }
+    else{
+        console.log("Error while renaming group");
+        alert("You are not authorized to perform this action");
+    }
+};
+const leaveGroup = async (roomId) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/leaveRoom', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "roomId": roomId}),
+    });
+    if(response.ok){
+        console.log("Group Left");
+    }
+    else{
+        console.log("Error while leaving group");
+        alert(await response.text());
+    }
+};
+const endGroup = async (roomId) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/deleteRoom', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "roomId": roomId}),
+    });
+    if(response.ok){
+        console.log("Group Ended");
+    }
+    else{
+        console.log("Error while ending group");
+        alert(await response.text());
+    }
+};
 
 const RoomOptions = ({room}) => {
     const [showOptions, setShowOptions] = useState(false);
     const [showMembers, setShowMembers] = useState(false);
     const [members, setMembers] = useState([]);
     const [refreshMemebers, setRefreshMembers] = useState(false);
+    const [isRenameGroup, setIsRenameGroup] = useState(false);
+    const [newGroupName, setNewGroupName] = useState("");
 
     const memberRemoveAddRejectAction = async (action, userId) => {
         if(action === "accept"){
@@ -127,13 +191,13 @@ const RoomOptions = ({room}) => {
                     }}
                 >
                     <button
-                        onClick={() => handleOptionClick("leave")}
+                        onClick={() => leaveGroup(room.roomId)}
                         style={menuButtonStyle}
                     >
                         Leave Group
                     </button>
                     <button
-                        onClick={() => handleOptionClick("rename")}
+                        onClick={() => setIsRenameGroup(true)}
                         style={menuButtonStyle}
                     >
                         Rename Group
@@ -145,7 +209,7 @@ const RoomOptions = ({room}) => {
                         Members
                     </button>
                     <button
-                        onClick={() => handleOptionClick("end")}
+                        onClick={() => endGroup(room.roomId)}
                         style={menuButtonStyle}
                     >
                         End Group
@@ -160,6 +224,28 @@ const RoomOptions = ({room}) => {
                         memberRemoveAddRejectAction(action, userId);
                     }}
                 />
+            )}
+            {isRenameGroup && (
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <h2>Rename Group</h2>
+                        <input
+                            type="text"
+                            placeholder="Enter new group name"
+                            value={newGroupName}
+                            onChange={(e) => setNewGroupName(e.target.value)}
+                            required
+                        />
+                        <div className="modal-buttons">
+                            <button onClick={()=>{
+                                console.log("Rename Group");
+                                renameGroup(room.roomId, newGroupName);
+                                setIsRenameGroup(false);
+                            }}>Submit</button>
+                            <button onClick={()=>{setIsRenameGroup(false)}}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

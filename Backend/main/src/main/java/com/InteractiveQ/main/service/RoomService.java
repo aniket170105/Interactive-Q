@@ -149,6 +149,10 @@ public class RoomService {
         }
     }
 
+    public void endARoom(Room room){
+        room.setIsEnded(true);
+        roomRepository.save(room);
+    }
 
 //
     public Optional<Room> getRoom(Integer roomId){

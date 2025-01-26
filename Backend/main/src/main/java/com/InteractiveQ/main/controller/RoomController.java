@@ -198,4 +198,27 @@ public class RoomController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You Cannot Leave You Are Admin");
     }
+
+    @DeleteMapping("user/room/deleteRoom")
+    public ResponseEntity<String> deleteRoom(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
+            @RequestBody JoinRoomDTO joinRoomDTO
+    ){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(null);
+        }
+        String token = authHeader.substring(7);
+        String username = jwtService.extractUsername(token);
+        Optional<Person> user = personService.userProfile(username);
+        Optional<Room> room = roomService.getRoom(joinRoomDTO.getRoomId());
+
+        if(user.isPresent() && room.isPresent() &&
+                user.get().getUserId().equals(room.get().getAdmin().getUserId())
+        ){
+            roomService.endARoom(room.get());
+            return ResponseEntity.status(HttpStatus.OK).body("Successfully Ended Room");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not admin");
+    }
 }
