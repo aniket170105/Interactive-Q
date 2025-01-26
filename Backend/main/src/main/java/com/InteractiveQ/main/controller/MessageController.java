@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -31,8 +32,15 @@ import java.util.Optional;
 @RestController
 public class MessageController {
 
+    private final SimpMessagingTemplate messagingTemplate;
     @Autowired
     MessageService messageService;
+
+    public MessageController(SimpMessagingTemplate messagingTemplate, MessageService messageService) {
+        this.messagingTemplate = messagingTemplate;
+        this.messageService = messageService;
+    }
+
     @Autowired
     LikeService likeService;
     @Autowired
@@ -47,13 +55,13 @@ public class MessageController {
     RoomService roomService;
 
     @PostMapping("user/room/message/send")
-    public ResponseEntity<String> sendMessage(
+    public ResponseEntity<MessageDTO> sendMessage(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
             @RequestBody RequestMessageDTO messageDTO
             ){
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Fuck Offff");
+                    .body(null);
         }
         String token = authHeader.substring(7);
         String username = jwtService.extractUsername(token);
@@ -62,7 +70,7 @@ public class MessageController {
         if(user.isPresent() && room.isPresent() && messageService.isUserBelongToRoom(username, messageDTO.getRoomId())){
 
             if(room.get().getIsEnded()){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Room Already Ended");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             }
 
             Message message = new Message();
@@ -72,10 +80,14 @@ public class MessageController {
             message.setUser(user.get());
             message.setIsAnonymous(messageDTO.getIsAnonymous());
             message.setIsPoll(messageDTO.getIsPoll());
-            messageService.saveMessage(message, null);
-            return ResponseEntity.status(HttpStatus.OK).body("Message Successfully Posted");
+            MessageDTO savedMessage = messageService.saveMessage(message, null);
+
+
+//            messagingTemplate.convertAndSend("/topic/messages/" + messageDTO.getRoomId(), savedMessage);
+
+            return ResponseEntity.status(HttpStatus.OK).body(savedMessage);
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred : User might not be authorized to send messages yet");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
     @PostMapping("user/room/poll/send")

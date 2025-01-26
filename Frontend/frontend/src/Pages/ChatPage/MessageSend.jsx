@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { io } from 'socket.io-client';
 
+const socket = io('http://localhost:3000');
 
 const sendMessage = async (message, isAnonymous, roomId) => {
   const refreshToken = localStorage.getItem('refreshToken');
@@ -13,10 +15,12 @@ const sendMessage = async (message, isAnonymous, roomId) => {
   });
   if(response.ok){
     console.log("Message sent successfully!");
+    socket.emit('join_room', roomId);
+    socket.emit('send_message', await response.json());
   }
   else{
-    // console.log("Error while sending message");
-    alert(await response.text());
+    console.log("Error while sending message");
+    // alert(await response.text());
   }
 };
 

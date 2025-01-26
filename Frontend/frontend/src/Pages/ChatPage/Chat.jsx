@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ChatInput from "./MessageSend";
+import { io } from 'socket.io-client';
 
 const fetchMessages = async (roomId) => {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -42,12 +43,14 @@ const findCurrentUserMessage = (message, user) => {
     return message.user.userId === user.userId;
 };
 
+const socket = io('http://localhost:3000');  // Your Node.js WebSocket server
+
 const Chat = ({ room }) => {
     const [messages, setMessages] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null); // To track dropdown states
     const [user, setUser] = useState(null);
+    const [client, setClient] = useState(null);
 
-    // Mock API call to fetch messages
     useEffect(() => {
         fetchMessages(room.roomId).then((data) => {
             setMessages(data);
@@ -56,6 +59,22 @@ const Chat = ({ room }) => {
             console.log(data);
             setUser(data);
         });
+
+        // Join room
+        socket.emit('join_room', room.roomId);
+        // Listen for incoming messages
+        socket.on('message_broadcast', (broadcastedMessage) => {
+            console.log("Received message:", broadcastedMessage);
+            setMessages((prevMessages) => [...prevMessages, broadcastedMessage]);
+        });
+        socket.on('error', (errorMessage) => {
+            console.error(errorMessage);
+        });
+        return () => {
+            socket.off('message_broadcast');
+            socket.off('error');
+        };
+
     }, [room]);
 
     const toggleDropdown = (messageId) => {
@@ -76,7 +95,7 @@ const Chat = ({ room }) => {
             >
                 {messages.map((messageDTO) => {
                     const { message, pollOptions } = messageDTO;
-                    const isSent = findCurrentUserMessage(message, user); // Replace with your user logic
+                    const isSent = findCurrentUserMessage(message, user); //Logic to show one in right and one in left
                     return (
                         <div
                             key={message.messageId}
