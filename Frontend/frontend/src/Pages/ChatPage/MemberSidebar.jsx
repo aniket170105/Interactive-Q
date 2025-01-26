@@ -21,7 +21,6 @@ const MemberSidebar = ({ members, onClose, handleMemberAction }) => {
                     <div className="member-item" key={member.person.userId}>
                         <span>{member.person.name}</span>
                         <div className="member-actions">
-                            {console.log(member)}
                             {member.isAuthenticated && !member.isExited ? (
                                 <button
                                     className="remove-button"

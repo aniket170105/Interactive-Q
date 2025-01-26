@@ -2,6 +2,7 @@ package com.InteractiveQ.main.entities;
 
 import lombok.*;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "message")
@@ -25,7 +26,8 @@ public class Message {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "post_time")
+    @CreationTimestamp
     private java.sql.Timestamp postTime;
 
     @ManyToOne

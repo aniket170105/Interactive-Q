@@ -75,7 +75,7 @@ public class MessageController {
             messageService.saveMessage(message, null);
             return ResponseEntity.status(HttpStatus.OK).body("Message Successfully Posted");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred while Saving Message");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred : User might not be authorized to send messages yet");
     }
 
     @PostMapping("user/room/poll/send")
@@ -113,7 +113,8 @@ public class MessageController {
             messageService.saveMessage(message, pollOptions);
             return ResponseEntity.status(HttpStatus.OK).body("Poll Successfully Posted");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred while Saving Poll");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred : User might not be authorized to send messages yet");
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred while Saving Poll");
     }
 
     @PostMapping("user/room/getMessages")

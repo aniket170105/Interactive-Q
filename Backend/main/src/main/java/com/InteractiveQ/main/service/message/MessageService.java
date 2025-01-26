@@ -72,7 +72,7 @@ public class MessageService {
 //    This function is used to return all the message belonging to a room
     public List<MessageDTO> fetchMessagesWithPolls(Room room, Person user) {
 //        Return the list in sorted order
-        List<Message> messages = messageRepository.findByRoom(room, Sort.by("postTime").descending());
+        List<Message> messages = messageRepository.findByRoom(room, Sort.by("postTime").ascending());
         List<MessageDTO> result = new ArrayList<>();
         for (Message message : messages) {
             MessageDTO messageDTO = new MessageDTO();
@@ -81,7 +81,7 @@ public class MessageService {
                 List<PollOption> pollOptions = pollOptionRepository.findByMessage(message);
                 messageDTO.setPollOptions(pollOptions);
             }
-            messageDTO.setIsCurrentUser(message.getUser().getUserId().equals(user.getUserId()));
+//            messageDTO.setIsCurrentUser(message.getUser().getUserId().equals(user.getUserId()));
             result.add(messageDTO);
         }
         return result;

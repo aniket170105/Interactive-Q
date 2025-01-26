@@ -9,9 +9,11 @@ import SignInPage from './Pages/SignInPage.jsx'
 import SignUpPage from './Pages/SignUpPage.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  <>
+  {/* // <StrictMode> */}
     {/* <BrowserRouter> */}
       <ChatPage/>
     {/* </BrowserRouter> */}
-  </StrictMode>
+  {/* // </StrictMode> */}
+  </>
 )

@@ -9,27 +9,54 @@ const fetchMessages = async (roomId) => {
             'Content-Type': 'application/json',
             "Authorization": `Bearer ${refreshToken}`
         },
-        body: JSON.stringify({ "roomId": roomId}),
+        body: JSON.stringify({ "roomId": roomId }),
     });
-    if(response.ok){
+    if (response.ok) {
         return await response.json();
     }
-    else{
+    else {
         console.log("Error while fetching messages");
         return [];
     }
 };
 
-const Chat = ({room}) => {
+const fetchUser = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/Profile', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+    });
+    if (response.ok) {
+        return await response.json();
+    }
+    else {
+        console.log("Error while fetching user");
+        return null;
+    }
+};
+
+const findCurrentUserMessage = (message, user) => {
+    return message.user.userId === user.userId;
+};
+
+const Chat = ({ room }) => {
     const [messages, setMessages] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null); // To track dropdown states
+    const [user, setUser] = useState(null);
 
     // Mock API call to fetch messages
     useEffect(() => {
         fetchMessages(room.roomId).then((data) => {
             setMessages(data);
         });
-    }, []);
+        fetchUser().then((data) => {
+            console.log(data);
+            setUser(data);
+        });
+    }, [room]);
 
     const toggleDropdown = (messageId) => {
         setDropdownOpen((prev) => (prev === messageId ? null : messageId));
@@ -48,8 +75,8 @@ const Chat = ({room}) => {
                 style={{ flex: 1, overflowY: "auto", padding: "16px", backgroundColor: "#1e1e1e", color: "#e0e0e0", maxHeight: "calc(100vh - 40vh)" }}
             >
                 {messages.map((messageDTO) => {
-                    const { message, pollOptions, isCurrentUser} = messageDTO;
-                    const isSent = isCurrentUser; // Replace with your user logic
+                    const { message, pollOptions } = messageDTO;
+                    const isSent = findCurrentUserMessage(message, user); // Replace with your user logic
                     return (
                         <div
                             key={message.messageId}
@@ -71,6 +98,19 @@ const Chat = ({room}) => {
                                     color: isSent ? "#fff" : "#000",
                                 }}
                             >
+                                {!message.isAnonymous && (
+                                    <p
+                                        style={{
+                                            fontWeight: "lighter",
+                                            fontSize: "12px", // Smaller font size
+                                            color: "#b0b0b0", // Light grey color
+                                            marginBottom: "4px",
+                                        }}
+                                    >
+                                        {message.user.name}
+                                    </p>
+                                )}
+
                                 {message.isPoll ? (
                                     <div>
                                         <p style={{ fontWeight: "bold" }}>Poll:</p>
@@ -131,7 +171,7 @@ const Chat = ({room}) => {
                                                     cursor: "pointer",
                                                 }}
                                             >
-                                                Tag Message
+                                                Like
                                             </button>
                                         </div>
                                     )}
@@ -141,7 +181,7 @@ const Chat = ({room}) => {
                     );
                 })}
             </div>
-            <ChatInput room={room}/>
+            <ChatInput room={room} />
         </div>
     );
 };

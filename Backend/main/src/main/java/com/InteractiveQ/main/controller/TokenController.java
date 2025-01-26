@@ -1,21 +1,24 @@
 package com.InteractiveQ.main.controller;
 
 
+import com.InteractiveQ.main.entities.BelongToRoom;
 import com.InteractiveQ.main.entities.Person;
+import com.InteractiveQ.main.entities.Room;
 import com.InteractiveQ.main.entities.SessionToken;
 import com.InteractiveQ.main.request.AuthRequestDTO;
 import com.InteractiveQ.main.request.RefreshTokenRequestDTO;
+import com.InteractiveQ.main.request.room.JoinRoomDTO;
 import com.InteractiveQ.main.response.JwtResponseDTO;
 import com.InteractiveQ.main.service.JwtService;
 import com.InteractiveQ.main.service.PersonService;
 import com.InteractiveQ.main.service.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -46,6 +49,23 @@ public class TokenController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
+    }
+
+    @GetMapping("user/Profile")
+    public ResponseEntity<Person> allMembers(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader
+    ){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(null);
+        }
+        String token = authHeader.substring(7);
+        String username = jwtService.extractUsername(token);
+        Optional<Person> user = personService.userProfile(username);
+        if(user.isPresent()){
+            return ResponseEntity.status(HttpStatus.OK).body(user.get());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
     @PostMapping("auth/v1/refreshToken")

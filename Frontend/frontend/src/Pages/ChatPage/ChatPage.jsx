@@ -94,14 +94,18 @@ const chatPage = () => {
     const [filteredRooms, setFilteredRooms] = useState([]);
     const [selectedRoom, setSelectedRoom] = useState(null);
 
+    const [isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoined] = useState(false);
 
     useEffect(() => {
         console.log("ChatPage mounted");
         refreshTokens();
-        fetchRooms(setRoom, setFilteredRooms);
+        setTimeout(() => {
+            fetchRooms(setRoom, setFilteredRooms);
+        }, 500);
+        // fetchRooms(setRoom, setFilteredRooms);
 
         console.log(rooms.length);
-    }, []);
+    }, [isNewGroupCreatedOrJoined]);
 
 
     const handleSearchChange = (e) => {
@@ -122,6 +126,7 @@ const chatPage = () => {
 
     const handleGroupCreate = () => {
         joinGroupAPI(newGroupName);
+        setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);
         setNewGroupName("");
         setIsNewChat(false);
     };
@@ -129,6 +134,7 @@ const chatPage = () => {
     const handleJoinGroup = () => {
         console.log("Group joined:", joinGroupName);
         joinNewGroupAPI(Number.parseInt(joinGroupName));
+        setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);
         setJoinGroupName("");
         setIsJoinGroup(false);
     };
@@ -190,7 +196,7 @@ const chatPage = () => {
                             )}
                         </div>
                     </div>
-                    <RoomPage room={selectedRoom}/>
+                    <RoomPage room={selectedRoom} isNewGroupCreatedOrJoined={isNewGroupCreatedOrJoined} setIsNewGroupCreatedOrJoined={setIsNewGroupCreatedOrJoined}/>
                 </div>
             </div>
             {isNewChat && (

@@ -16,7 +16,6 @@ const onOptionSelect = (option, setShowMembers) => {
         console.log("End Group");
     }
 };
-
 const fetchMemebers = async (room) => {
     const refreshToken = localStorage.getItem('refreshToken');
     console.log(room.roomId);
@@ -127,7 +126,7 @@ const endGroup = async (roomId) => {
     }
 };
 
-const RoomOptions = ({room}) => {
+const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoined}) => {
     const [showOptions, setShowOptions] = useState(false);
     const [showMembers, setShowMembers] = useState(false);
     const [members, setMembers] = useState([]);
@@ -153,11 +152,26 @@ const RoomOptions = ({room}) => {
 
     useEffect(() => {
         if(showMembers){
-            fetchMemebers(room).then((data) => {
-                setMembers(data);
-            });
+            setTimeout(() => {
+                fetchMemebers(room).then((data) => {
+                    console.log(data);
+                    setMembers(data);
+                });
+            }, 500);
+                // fetchMemebers(room).then((data) => {
+                //     console.log(data);
+                //     setMembers(data);
+                // });
         }
-    }, [showMembers, room, refreshMemebers]);
+    }, [showMembers, refreshMemebers]);
+    
+    useEffect(() => {
+        setShowMembers(false);
+        setIsRenameGroup(false);
+        setShowOptions(false);
+        setMembers([]);
+        setNewGroupName("");
+    }, [room]);
 
     const handleOptionClick = (option) => {
         setShowOptions(false); // Close dropdown
@@ -191,13 +205,14 @@ const RoomOptions = ({room}) => {
                     }}
                 >
                     <button
-                        onClick={() => leaveGroup(room.roomId)}
+                        onClick={() => {leaveGroup(room.roomId); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
                         style={menuButtonStyle}
                     >
                         Leave Group
                     </button>
                     <button
-                        onClick={() => setIsRenameGroup(true)}
+                        onClick={() => {setIsRenameGroup(true);
+                        }}
                         style={menuButtonStyle}
                     >
                         Rename Group
@@ -209,7 +224,7 @@ const RoomOptions = ({room}) => {
                         Members
                     </button>
                     <button
-                        onClick={() => endGroup(room.roomId)}
+                        onClick={() => {endGroup(room.roomId); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
                         style={menuButtonStyle}
                     >
                         End Group
@@ -233,7 +248,8 @@ const RoomOptions = ({room}) => {
                             type="text"
                             placeholder="Enter new group name"
                             value={newGroupName}
-                            onChange={(e) => setNewGroupName(e.target.value)}
+                            onChange={(e) => {setNewGroupName(e.target.value);
+                            }}
                             required
                         />
                         <div className="modal-buttons">
@@ -241,6 +257,9 @@ const RoomOptions = ({room}) => {
                                 console.log("Rename Group");
                                 renameGroup(room.roomId, newGroupName);
                                 setIsRenameGroup(false);
+                                setTimeout(() => {
+                                    setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);
+                                }, 500);
                             }}>Submit</button>
                             <button onClick={()=>{setIsRenameGroup(false)}}>Cancel</button>
                         </div>

@@ -2,14 +2,13 @@ import React, { useEffect, useState } from "react";
 import RoomOptions from "./RoomOptions";
 import Chat from "./Chat";
 
-const RoomPage = ({ room }) => {
+const RoomPage = ({ room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoined}) => {
     const [roomDetails, setRoomDetails] = useState(null);
 
     useEffect(() => {
-    }, [room]);
-
+    }, []);
     if (!room) {
-        return <p>Select a room to view details.</p>;
+        return <div style={{display: "flex", justifyContent: "center", alignItems: "center", width: '100%', height: '100%'}}>Select a room to view details.</div>;
     }
     return (
         <div className="chat-window">
@@ -17,7 +16,7 @@ const RoomPage = ({ room }) => {
                 <h2>{room.roomName}</h2>
                 <div className="options-menu">
                     <span className="eye-icon">
-                        <RoomOptions room={room}/>
+                        <RoomOptions room={room} isNewGroupCreatedOrJoined={isNewGroupCreatedOrJoined} setIsNewGroupCreatedOrJoined={setIsNewGroupCreatedOrJoined}/>
                     </span>
                 </div>
             </div>

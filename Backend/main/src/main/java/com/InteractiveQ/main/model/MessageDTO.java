@@ -16,5 +16,5 @@ import java.util.List;
 public class MessageDTO {
     private Message message;
     private List<PollOption> pollOptions;
-    private Boolean isCurrentUser;
+//    private Boolean isCurrentUser;
 }
