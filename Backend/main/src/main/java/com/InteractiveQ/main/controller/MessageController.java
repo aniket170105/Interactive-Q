@@ -91,13 +91,13 @@ public class MessageController {
     }
 
     @PostMapping("user/room/poll/send")
-    public ResponseEntity<String> sendPoll(
+    public ResponseEntity<MessageDTO> sendPoll(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
             @RequestBody RequestPollDTO requestPollDTO
             ){
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Fuck Offff");
+                    .body(null);
         }
         String token = authHeader.substring(7);
         String username = jwtService.extractUsername(token);
@@ -106,7 +106,7 @@ public class MessageController {
         if(user.isPresent() && room.isPresent() && messageService.isUserBelongToRoom(username, requestPollDTO.getRoomId())){
 
             if(room.get().getIsEnded()){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Room Already Ended");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             }
 
             Message message = new Message();
@@ -122,10 +122,10 @@ public class MessageController {
                 pollOption.setOptText(requestPollOptionDTO);
                 pollOptions.add(pollOption);
             }
-            messageService.saveMessage(message, pollOptions);
-            return ResponseEntity.status(HttpStatus.OK).body("Poll Successfully Posted");
+            MessageDTO savedMessage =  messageService.saveMessage(message, pollOptions);
+            return ResponseEntity.status(HttpStatus.OK).body(savedMessage);
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred : User might not be authorized to send messages yet");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 //        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred while Saving Poll");
     }
 

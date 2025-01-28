@@ -1,74 +1,43 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const axios = require('axios');
-const cors = require('cors'); 
-// Initialize Express App
+
 const app = express();
 const server = http.createServer(app);
+const PORT = process.env.PORT || 3000;
+
+// Initialize Socket.IO
 const io = socketIo(server, {
+    pingTimeout: 60000,
     cors: {
-        origin: "http://localhost:5173",  // Allow your React frontend to connect
-        methods: ["GET", "POST"],
-        allowedHeaders: ["Content-Type"],
-        credentials: true  // If you are using cookies or credentials
+        origin: "http://localhost:5173",
     }
 });
-
-// Define the API URL for Spring Boot (change this to your actual endpoint)
-const SPRING_BOOT_API_URL = 'http://localhost:8081/user/room/message/send';
-
-// Middleware to handle JSON requests
-app.use(cors({
-    origin: "http://localhost:5173",  // Allow your React frontend to connect
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
-    credentials: true
-}));
-
-// Listen to incoming WebSocket connections
+// Socket.IO event handlers
 io.on('connection', (socket) => {
-    console.log('New WebSocket connection established');
-
-    // Handle 'send_message' event from frontend
-    socket.on('send_message', async (messageData) => {
-        try {
-            io.to(messageData.roomId).emit('message_broadcast', messageData);
-            // Call Spring Boot API to handle the message
-            // const response = await axios.post(SPRING_BOOT_API_URL, messageData, {
-            //     headers: {
-            //         'Authorization': `Bearer ${messageData.token}`,
-            //     }
-            // });
-
-            // // If the message was sent successfully, broadcast to the appropriate room
-            // if (response.status === 200) {
-            //     io.to(messageData.roomId).emit('message_broadcast', response.data);
-            //     console.log('Message broadcasted:', response.data);
-            // } else {
-            //     console.log('Error sending message:', response.data);
-            //     socket.emit('error', 'Error sending message');
-            // }
-        } catch (error) {
-            console.error('Error calling Spring Boot API:', error);
-            socket.emit('error', 'Failed to send message');
-        }
+    // console.log('New WebSocket connection established');
+    socket.on('joinRoom', (room) => {
+        socket.join(room);
+        console.log(`User ${socket.id} joined room: ${room}`);
     });
 
-    // Join a room when the user connects (optional)
-    socket.on('join_room', (roomId) => {
-        socket.join(roomId);
-        console.log(`User joined room: ${roomId}`);
+    // Event for sending a message
+    socket.on('message', ({ room, message }) => {
+        console.log(`Message in room ${room}: ${message}`);
+
+        // Broadcast message to all users in the room
+        io.to(room).emit('message', { user: socket.id, message });
     });
 
     // Handle user disconnect
     socket.on('disconnect', () => {
-        console.log('User disconnected');
+        console.log('User disconnected:', socket.id);
     });
 });
 
+
+
 // Start the server
-const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

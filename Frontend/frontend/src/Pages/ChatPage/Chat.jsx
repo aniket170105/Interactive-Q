@@ -39,11 +39,30 @@ const fetchUser = async () => {
     }
 };
 
+const isUserAuthorizedInRoom = async (roomId) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/authorize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "roomId": roomId }),
+    });
+    if (response.ok) {
+        return true;
+    }
+    else {
+        console.log("User not authorized in room");
+        return false;
+    }
+};
+
+const socket = io("http://localhost:3000");
+
 const findCurrentUserMessage = (message, user) => {
     return message.user.userId === user.userId;
 };
-
-const socket = io('http://localhost:3000');  // Your Node.js WebSocket server
 
 const Chat = ({ room }) => {
     const [messages, setMessages] = useState([]);
@@ -60,20 +79,14 @@ const Chat = ({ room }) => {
             setUser(data);
         });
 
-        // Join room
-        socket.emit('join_room', room.roomId);
-        // Listen for incoming messages
-        socket.on('message_broadcast', (broadcastedMessage) => {
-            console.log("Received message:", broadcastedMessage);
-            setMessages((prevMessages) => [...prevMessages, broadcastedMessage]);
+    }, [room]);
+
+    useEffect(() => {
+        socket.emit("joinRoom", room.roomId);
+
+        socket.on("message", ({ user, message }) => {
+            setMessages((prevMessages) => [...prevMessages, message]);
         });
-        socket.on('error', (errorMessage) => {
-            console.error(errorMessage);
-        });
-        return () => {
-            socket.off('message_broadcast');
-            socket.off('error');
-        };
 
     }, [room]);
 

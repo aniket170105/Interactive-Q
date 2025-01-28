@@ -16,4 +16,5 @@ public interface BelongToRoomRepository extends JpaRepository<BelongToRoom, Belo
 
     List <BelongToRoom> findByRoom(Room room);
 
+
 }

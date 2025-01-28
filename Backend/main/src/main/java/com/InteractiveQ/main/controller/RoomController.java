@@ -2,6 +2,7 @@ package com.InteractiveQ.main.controller;
 
 
 import com.InteractiveQ.main.entities.BelongToRoom;
+import com.InteractiveQ.main.entities.BelongToRoomId;
 import com.InteractiveQ.main.entities.Person;
 import com.InteractiveQ.main.entities.Room;
 import com.InteractiveQ.main.request.room.AddUserToGroupDTO;
@@ -220,5 +221,31 @@ public class RoomController {
             return ResponseEntity.status(HttpStatus.OK).body("Successfully Ended Room");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not admin");
+    }
+
+    @PostMapping("user/room/isUserAuthorized")
+    public  ResponseEntity<Boolean> isUserAuthorized(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
+            JoinRoomDTO joinRoomDTO
+    ){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(null);
+        }
+        String token = authHeader.substring(7);
+        String username = jwtService.extractUsername(token);
+        Optional<Person> user = personService.userProfile(username);
+        Optional<Room> room = roomService.getRoom(joinRoomDTO.getRoomId());
+
+        if(user.isPresent() && room.isPresent()){
+            Optional<BelongToRoom> belongToRoom = roomService.findByRoomAndUser(user.get(), room.get());
+            if(belongToRoom.isPresent()){
+
+            }
+            else{
+                return ResponseEntity.status(HttpStatus.OK).body(false);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(true);
     }
 }

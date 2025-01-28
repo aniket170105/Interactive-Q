@@ -161,4 +161,7 @@ public class RoomService {
 
 //    public Boolean checkIfRoomAlreadyEnded
 
+    public Optional<BelongToRoom> findByRoomAndUser(Person user, Room room){
+        return belongToRoomRepository.findById(new BelongToRoomId(user, room));
+    }
 }
