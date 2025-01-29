@@ -59,7 +59,7 @@ const isUserAuthorizedInRoom = async (roomId) => {
     }
 };
 
-const socket = io("http://localhost:3000");
+
 const findCurrentUserMessage = (message, user) => {
     return message.user.userId === user.userId;
 };
@@ -71,11 +71,32 @@ const Chat = ({ room }) => {
     const [client, setClient] = useState(null);
 
     useEffect(() => {
+        const socket = io("http://localhost:3000");
+        setMessages([]);
         fetchMessages(room.roomId).then((data) => {
             setMessages(data);
         });
+        isUserAuthorizedInRoom(room.roomId).then((data) => {
+            console.log(data);
+            if (data === true) {
+                socket.emit("joinRoom", room.roomId);
+                const messageListener = ({ user, message }) => {
+                    if (message.message.room.roomId === room.roomId) {
+                        setMessages((prevMessages) => [...prevMessages, message]);
+                    }
+                };
+                socket.on("message", messageListener);
 
-
+                // Cleanup function to remove the event listener
+                return () => {
+                    socket.off("message", messageListener);
+                    socket.emit("leaveRoom", room.roomId);
+                };
+            }
+        });
+        return () => {
+            socket.emit("leaveRoom", room.roomId);
+        };
     }, [room]);
 
     useEffect(() => {
@@ -84,19 +105,6 @@ const Chat = ({ room }) => {
             setUser(data);
         });
     }, []);
-
-    useEffect(() => {
-        isUserAuthorizedInRoom(room.roomId).then((data) => {
-            console.log(data);
-            if (data === true) {
-                socket.emit("joinRoom", room.roomId);
-                socket.on("message", ({ user, message }) => {
-                    setMessages((prevMessages) => [...prevMessages, message]);
-                });
-            }
-        });
-
-    }, [room]);
 
     const toggleDropdown = (messageId) => {
         setDropdownOpen((prev) => (prev === messageId ? null : messageId));
@@ -153,7 +161,7 @@ const Chat = ({ room }) => {
 
                                 {message.isPoll ? (
                                     <div>
-                                        <p style={{ fontWeight: "bold" }}>Poll:</p>
+                                        <p style={{ fontWeight: "bold" }}>{message.text}</p>
                                         {pollOptions.map((option) => (
                                             <div key={option.optId} className="poll-option">
                                                 <input
