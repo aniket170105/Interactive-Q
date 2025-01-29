@@ -236,11 +236,13 @@ public class RoomController {
         String username = jwtService.extractUsername(token);
         Optional<Person> user = personService.userProfile(username);
         Optional<Room> room = roomService.getRoom(joinRoomDTO.getRoomId());
-
         if(user.isPresent() && room.isPresent()){
             Optional<BelongToRoom> belongToRoom = roomService.findByRoomAndUser(user.get(), room.get());
             if(belongToRoom.isPresent()){
-
+                if(belongToRoom.get().getIsAuthenticated() && !belongToRoom.get().getIsExited()){
+                    return ResponseEntity.status(HttpStatus.OK).body(true);
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(false);
             }
             else{
                 return ResponseEntity.status(HttpStatus.OK).body(false);
