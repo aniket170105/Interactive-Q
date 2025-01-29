@@ -226,28 +226,33 @@ public class RoomController {
     @PostMapping("user/room/isUserAuthorized")
     public  ResponseEntity<Boolean> isUserAuthorized(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
-            JoinRoomDTO joinRoomDTO
+            @RequestBody  JoinRoomDTO joinRoomDTO
     ){
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(null);
         }
+        System.out.println("Is is called");
         String token = authHeader.substring(7);
         String username = jwtService.extractUsername(token);
         Optional<Person> user = personService.userProfile(username);
         Optional<Room> room = roomService.getRoom(joinRoomDTO.getRoomId());
+        System.out.println(joinRoomDTO.getRoomId());
         if(user.isPresent() && room.isPresent()){
+            System.out.println("Hello");
+
             Optional<BelongToRoom> belongToRoom = roomService.findByRoomAndUser(user.get(), room.get());
             if(belongToRoom.isPresent()){
+                System.out.println("Hello");
                 if(belongToRoom.get().getIsAuthenticated() && !belongToRoom.get().getIsExited()){
                     return ResponseEntity.status(HttpStatus.OK).body(true);
                 }
-                return ResponseEntity.status(HttpStatus.OK).body(false);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
             }
             else{
-                return ResponseEntity.status(HttpStatus.OK).body(false);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
             }
         }
-        return ResponseEntity.status(HttpStatus.OK).body(true);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(true);
     }
 }

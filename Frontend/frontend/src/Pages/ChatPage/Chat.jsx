@@ -40,8 +40,9 @@ const fetchUser = async () => {
 };
 
 const isUserAuthorizedInRoom = async (roomId) => {
+    console.log(roomId);
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/room/authorize', {
+    const response = await fetch('http://localhost:8081/user/room/isUserAuthorized', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -59,7 +60,6 @@ const isUserAuthorizedInRoom = async (roomId) => {
 };
 
 const socket = io("http://localhost:3000");
-
 const findCurrentUserMessage = (message, user) => {
     return message.user.userId === user.userId;
 };
@@ -74,18 +74,26 @@ const Chat = ({ room }) => {
         fetchMessages(room.roomId).then((data) => {
             setMessages(data);
         });
-        fetchUser().then((data) => {
-            console.log(data);
-            setUser(data);
-        });
+
 
     }, [room]);
 
     useEffect(() => {
-        socket.emit("joinRoom", room.roomId);
+        fetchUser().then((data) => {
+            console.log(data);
+            setUser(data);
+        });
+    }, []);
 
-        socket.on("message", ({ user, message }) => {
-            setMessages((prevMessages) => [...prevMessages, message]);
+    useEffect(() => {
+        isUserAuthorizedInRoom(room.roomId).then((data) => {
+            console.log(data);
+            if (data === true) {
+                socket.emit("joinRoom", room.roomId);
+                socket.on("message", ({ user, message }) => {
+                    setMessages((prevMessages) => [...prevMessages, message]);
+                });
+            }
         });
 
     }, [room]);
@@ -156,6 +164,9 @@ const Chat = ({ room }) => {
                                                 <label htmlFor={`option-${option.optId}`} style={{ marginLeft: "8px" }}>
                                                     {option.optText}
                                                 </label>
+                                                <span style={{ marginLeft: "8px" }}>
+                                                    ({option.userVoted.length} votes)
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
