@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ChatInput from "./MessageSend";
 import { io } from 'socket.io-client';
+import PollComponent from "./PollComponent";
+import { use } from "react";
 
 const fetchMessages = async (roomId) => {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -59,9 +61,27 @@ const isUserAuthorizedInRoom = async (roomId) => {
     }
 };
 
-
 const findCurrentUserMessage = (message, user) => {
     return message.user.userId === user.userId;
+};
+
+const voteAPI = async (optionId) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/poll/vote', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "optId": optionId }),
+    });
+
+    if (response.ok) {
+        console.log("Voted successfully!");
+    }
+    else {
+        console.log("Error while voting");
+    }
 };
 
 const Chat = ({ room }) => {
@@ -159,28 +179,31 @@ const Chat = ({ room }) => {
                                     </p>
                                 )}
 
-                                {message.isPoll ? (
-                                    <div>
-                                        <p style={{ fontWeight: "bold" }}>{message.text}</p>
-                                        {pollOptions.map((option) => (
-                                            <div key={option.optId} className="poll-option">
-                                                <input
-                                                    type="radio"
-                                                    id={`option-${option.optId}`}
-                                                    name={`poll-${message.messageId}`}
-                                                />
-                                                <label htmlFor={`option-${option.optId}`} style={{ marginLeft: "8px" }}>
-                                                    {option.optText}
-                                                </label>
-                                                <span style={{ marginLeft: "8px" }}>
-                                                    ({option.userVoted.length} votes)
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p>{message.text}</p>
-                                )}
+                                {message.isPoll &&
+                                    <PollComponent message={message} pollOptions={pollOptions} voteAPI={voteAPI} currentUser={user}/>
+                                    // message.isPoll ? (
+                                    //     <div>
+                                    //         <p style={{ fontWeight: "bold" }}>{message.text}</p>
+                                    //         {pollOptions.map((option) => (
+                                    //             <div key={option.optId} className="poll-option">
+                                    //                 <input
+                                    //                     type="radio"
+                                    //                     id={`option-${option.optId}`}
+                                    //                     name={`poll-${message.messageId}`}
+                                    //                 />
+                                    //                 <label htmlFor={`option-${option.optId}`} style={{ marginLeft: "8px" }}>
+                                    //                     {option.optText}
+                                    //                 </label>
+                                    //                 <span style={{ marginLeft: "8px" }}>
+                                    //                     ({option.userVoted.length} votes)
+                                    //                 </span>
+                                    //             </div>
+                                    //         ))}
+                                    //     </div>
+                                    // ) : (
+                                    //     <p>{message.text}</p>
+                                    // )
+                                }
                                 <div style={{ fontSize: "12px", color: "#6c757d", marginTop: "8px" }}>
                                     {new Date(message.postTime).toLocaleTimeString()}
                                 </div>
