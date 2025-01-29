@@ -4,6 +4,7 @@ package com.InteractiveQ.main.service.message;
 import com.InteractiveQ.main.entities.*;
 import com.InteractiveQ.main.model.MessageDTO;
 import com.InteractiveQ.main.repository.*;
+import com.InteractiveQ.main.response.message.PollOptionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,8 @@ public class MessageService {
     PersonRepository personRepository;
     @Autowired
     RoomRepository roomRepository;
+    @Autowired
+    VoteRepository voteRepository;
 
     public Boolean isUserBelongToRoom(String userId, Integer roomId){
         Optional<BelongToRoom> belongToRoom = belongToRoomRepository.findById(new BelongToRoomId(personRepository.findByUserId(userId).get(),
@@ -65,7 +68,13 @@ public class MessageService {
             }
         }
         requiredMessage.setMessage(savedMessage);
-        requiredMessage.setPollOptions(savedPoll);
+        List<PollOptionDTO> pollOptionDTOS = new ArrayList<>();
+        for(PollOption pollOption : savedPoll){
+            PollOptionDTO pollOptionDTO = new PollOptionDTO(pollOption, new ArrayList<>());
+            pollOptionDTOS.add(pollOptionDTO);
+        }
+//        requiredMessage.setPollOptions(savedPoll);
+        requiredMessage.setPollOptions(pollOptionDTOS);
         return requiredMessage;
     }
 
@@ -79,7 +88,14 @@ public class MessageService {
             messageDTO.setMessage(message);
             if (Boolean.TRUE.equals(message.getIsPoll())) {
                 List<PollOption> pollOptions = pollOptionRepository.findByMessage(message);
-                messageDTO.setPollOptions(pollOptions);
+//                messageDTO.setPollOptions(pollOptions);
+                List <PollOptionDTO> pollOptionDTOS = new ArrayList<>();
+                for(PollOption pollOption : pollOptions){
+                    List <Vote> votes = voteRepository.findByOption(pollOption);
+                    pollOptionDTOS.add(new PollOptionDTO(pollOption, votes.stream().map(Vote::getPerson).toList()));
+                }
+
+                messageDTO.setPollOptions(pollOptionDTOS);
             }
 //            messageDTO.setIsCurrentUser(message.getUser().getUserId().equals(user.getUserId()));
             result.add(messageDTO);
