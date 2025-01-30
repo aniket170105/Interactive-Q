@@ -4,6 +4,8 @@ import { io } from 'socket.io-client';
 import PollComponent from "./PollComponent";
 import { use } from "react";
 
+const socket = io("http://localhost:3000");
+
 const fetchMessages = async (roomId) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/getMessages', {
@@ -78,6 +80,7 @@ const voteAPI = async (optionId) => {
 
     if (response.ok) {
         console.log("Voted successfully!");
+        socket.emit('vote', await response.json());
     }
     else {
         console.log("Error while voting");
@@ -91,7 +94,7 @@ const Chat = ({ room }) => {
     const [client, setClient] = useState(null);
 
     useEffect(() => {
-        const socket = io("http://localhost:3000");
+        
         setMessages([]);
         fetchMessages(room.roomId).then((data) => {
             setMessages(data);
@@ -107,6 +110,29 @@ const Chat = ({ room }) => {
                 };
                 socket.on("message", messageListener);
 
+                // To receive brodcasted poll
+                socket.on("vote", (voteData) => {
+                    console.log("Vote data broadcasted");
+                    setMessages((prevMessages) => {
+                        return prevMessages.map((msg) => {
+                            if (msg.message.messageId === voteData.option.message.messageId) {
+                                return {
+                                    ...msg,
+                                    pollOptions: msg.pollOptions.map((opt) => {
+                                        if (opt.optId === voteData.option.optId) {
+                                            return {
+                                                ...opt,
+                                                userVoted: [...opt.userVoted, voteData.person],
+                                            };
+                                        }
+                                        return opt;
+                                    }),
+                                };
+                            }
+                            return msg;
+                        });
+                    });
+                });
                 // Cleanup function to remove the event listener
                 return () => {
                     socket.off("message", messageListener);
@@ -180,7 +206,7 @@ const Chat = ({ room }) => {
                                 )}
 
                                 {message.isPoll &&
-                                    <PollComponent message={message} pollOptions={pollOptions} voteAPI={voteAPI} currentUser={user}/>
+                                    <PollComponent message={message} pollOptions={pollOptions} voteAPI={voteAPI} currentUser={user} />
                                     // message.isPoll ? (
                                     //     <div>
                                     //         <p style={{ fontWeight: "bold" }}>{message.text}</p>

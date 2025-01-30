@@ -1,10 +1,7 @@
 package com.InteractiveQ.main.controller;
 
 
-import com.InteractiveQ.main.entities.Message;
-import com.InteractiveQ.main.entities.Person;
-import com.InteractiveQ.main.entities.PollOption;
-import com.InteractiveQ.main.entities.Room;
+import com.InteractiveQ.main.entities.*;
 import com.InteractiveQ.main.model.MessageDTO;
 import com.InteractiveQ.main.request.message.RequestAllMessagesDTO;
 import com.InteractiveQ.main.request.message.RequestMessageDTO;
@@ -149,13 +146,13 @@ public class MessageController {
     }
 
     @PatchMapping("user/room/poll/vote")
-    public ResponseEntity<String> likeMessage(
+    public ResponseEntity<Vote> likeMessage(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
             @RequestBody Map<String, Integer> request
     ){
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Not Authorized");
+                    .body(null);
         }
         String token = authHeader.substring(7);
         String username = jwtService.extractUsername(token);
@@ -164,9 +161,9 @@ public class MessageController {
         if(user.isPresent() && pollOption.isPresent() &&
             messageService.isMessageBelongToSameRoomAsUser(pollOption.get().getMessage().getMessageId(), username)
         ){
-            voteService.voteInPoll(user.get(), pollOption.get());
-            return ResponseEntity.status(HttpStatus.OK).body("Voted Successfully");
+            Vote vote = voteService.voteInPoll(user.get(), pollOption.get());
+            return ResponseEntity.status(HttpStatus.OK).body(vote);
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Occurred");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 }

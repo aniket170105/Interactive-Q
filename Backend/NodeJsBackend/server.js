@@ -29,6 +29,11 @@ io.on('connection', (socket) => {
         io.to(room).emit('message', { user: socket.id, message });
     });
 
+    socket.on('vote', (data) => {
+        // Broadcast the vote to all clients in the room
+        io.to(data.option.message.room.roomId).emit('vote', data);
+    });
+
     socket.on('leaveRoom', (roomId) => {
         socket.leave(roomId);
         console.log(`User ${socket.id} left room: ${roomId}`);
