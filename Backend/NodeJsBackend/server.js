@@ -34,6 +34,16 @@ io.on('connection', (socket) => {
         io.to(data.option.message.room.roomId).emit('vote', data);
     });
 
+    socket.on('like', (data) => {
+        // Broadcast the like to all clients in the room
+        io.to(data.message.room.roomId).emit('like', data);
+    });
+
+    socket.on('unlike', (data) => {
+        // Broadcast the unlike to all clients in the room
+        io.to(data.message.room.roomId).emit('unlike', data);
+    });
+
     socket.on('leaveRoom', (roomId) => {
         socket.leave(roomId);
         console.log(`User ${socket.id} left room: ${roomId}`);

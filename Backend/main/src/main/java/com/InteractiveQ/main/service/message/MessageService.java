@@ -75,6 +75,8 @@ public class MessageService {
             PollOptionDTO pollOptionDTO = new PollOptionDTO(pollOption, new ArrayList<>());
             pollOptionDTOS.add(pollOptionDTO);
         }
+
+        requiredMessage.setUserLiked(new ArrayList<>());
 //        requiredMessage.setPollOptions(savedPoll);
         requiredMessage.setPollOptions(pollOptionDTOS);
         return requiredMessage;
@@ -100,8 +102,9 @@ public class MessageService {
             }
 
             messageDTO.setUserLiked(likeRepository.findByMessage(message)
-                    .stream().map((e)-> e.getPerson()).toList());
+                    .stream().map(LikeMessage::getPerson).toList());
 //            messageDTO.setIsCurrentUser(message.getUser().getUserId().equals(user.getUserId()));
+            if(messageDTO.getUserLiked() == null) messageDTO.setUserLiked(new ArrayList<>());
             result.add(messageDTO);
         }
         return result;

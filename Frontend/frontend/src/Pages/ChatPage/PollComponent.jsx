@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./PollComponent.css";
 import { use } from "react";
 
-const PollComponent = ({ message, pollOptions, voteAPI, currentUser }) => {
+const PollComponent = ({ message, pollOptions, voteAPI, currentUser, socket}) => {
     // Track the user's selected option
     const [selectedOption, setSelectedOption] = useState(null);
     const [hasVoted, setHasVoted] = useState(false);
@@ -17,12 +17,12 @@ const PollComponent = ({ message, pollOptions, voteAPI, currentUser }) => {
         )?.optId : null);
     }, [pollOptions, message]);
 
-    console.log("has voted : " + hasVoted + message.text);
+    // console.log("has voted : " + hasVoted + " " + message.text);
     return (
         <div>
             {message.isPoll ? (
                 <div>
-                    <p style={{ fontWeight: "bold" }}>{message.text}</p>
+                    <p>{message.text}</p>
                     {pollOptions.map((option) => {
                         const userVotedForThis = option.userVoted.some(user => user.userId === currentUser.userId);
 
@@ -35,7 +35,7 @@ const PollComponent = ({ message, pollOptions, voteAPI, currentUser }) => {
                                     checked={selectedOption ? selectedOption === option.optId : userVotedForThis}
                                     disabled={hasVoted}
                                     onChange={() => {
-                                        voteAPI(option.optId);
+                                        voteAPI(option.optId, socket);
                                         setHasVoted(true);
                                     }}
                                     className="custom-radio"

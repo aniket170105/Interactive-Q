@@ -4,7 +4,6 @@ import { io } from 'socket.io-client';
 import PollComponent from "./PollComponent";
 import { use } from "react";
 
-const socket = io("http://localhost:3000");
 
 const fetchMessages = async (roomId) => {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -67,7 +66,7 @@ const findCurrentUserMessage = (message, user) => {
     return message.user.userId === user.userId;
 };
 
-const voteAPI = async (optionId) => {
+const voteAPI = async (optionId, socket) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/poll/vote', {
         method: 'PATCH',
@@ -87,6 +86,44 @@ const voteAPI = async (optionId) => {
     }
 };
 
+const likeMessageAPI = async (messageId, socket) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/message/like', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "messageId": messageId }),
+    });
+
+    if (response.ok) {
+        const likeData = await response.json();
+        socket.emit('like', likeData); // Emit the like event
+    } else {
+        console.log("Error while liking the message");
+    }
+};
+
+const unlikeMessageAPI = async (messageId, socket) => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/room/message/unlike', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+        body: JSON.stringify({ "messageId": messageId }),
+    });
+
+    if (response.ok) {
+        const unlikeData = await response.json();
+        socket.emit('unlike', unlikeData); // Emit the unlike event
+    } else {
+        console.log("Error while unliking the message");
+    }
+};
+
 const Chat = ({ room }) => {
     const [messages, setMessages] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null); // To track dropdown states
@@ -94,11 +131,14 @@ const Chat = ({ room }) => {
     const [client, setClient] = useState(null);
 
     useEffect(() => {
-        
+        const socket = io("http://localhost:3000");
+        setClient(socket);
         setMessages([]);
         fetchMessages(room.roomId).then((data) => {
+            console.log(data);
             setMessages(data);
         });
+
         isUserAuthorizedInRoom(room.roomId).then((data) => {
             console.log(data);
             if (data === true) {
@@ -133,9 +173,42 @@ const Chat = ({ room }) => {
                         });
                     });
                 });
+
+                const likeListener = (likeData) => {
+                    setMessages((prevMessages) => {
+                        return prevMessages.map((msg) => {
+                            if (msg.message.messageId === likeData.message.messageId) {
+                                return {
+                                    ...msg,
+                                    userLiked: [...msg.userLiked, likeData.person],
+                                };
+                            }
+                            return msg;
+                        });
+                    });
+                };
+                socket.on("like", likeListener);
+
+                const unlikeListener = (unlikeData) => {
+                    setMessages((prevMessages) => {
+                        return prevMessages.map((msg) => {
+                            if (msg.message.messageId === unlikeData.message.messageId) {
+                                return {
+                                    ...msg,
+                                    userLiked: msg.userLiked.filter(user => user.userId !== unlikeData.person.userId),
+                                };
+                            }
+                            return msg;
+                        });
+                    });
+                };
+                socket.on("unlike", unlikeListener);
                 // Cleanup function to remove the event listener
                 return () => {
                     socket.off("message", messageListener);
+                    socket.off("vote");
+                    socket.off("like", likeListener);
+                    socket.off("unlike", unlikeListener);
                     socket.emit("leaveRoom", room.roomId);
                 };
             }
@@ -154,11 +227,6 @@ const Chat = ({ room }) => {
 
     const toggleDropdown = (messageId) => {
         setDropdownOpen((prev) => (prev === messageId ? null : messageId));
-    };
-
-    const handleTagMessage = (messageId) => {
-        console.log("Tagging message with ID:", messageId);
-        setDropdownOpen(null); // Close dropdown
     };
 
     return (
@@ -205,8 +273,9 @@ const Chat = ({ room }) => {
                                     </p>
                                 )}
 
-                                {message.isPoll &&
-                                    <PollComponent message={message} pollOptions={pollOptions} voteAPI={voteAPI} currentUser={user} />
+                                {message.isPoll ?
+                                    (<PollComponent message={message} pollOptions={pollOptions} voteAPI={voteAPI} currentUser={user} socket={client}/>)
+                                    : (<p>{message.text}</p>)
                                     // message.isPoll ? (
                                     //     <div>
                                     //         <p style={{ fontWeight: "bold" }}>{message.text}</p>
@@ -233,34 +302,76 @@ const Chat = ({ room }) => {
                                 <div style={{ fontSize: "12px", color: "#6c757d", marginTop: "8px" }}>
                                     {new Date(message.postTime).toLocaleTimeString()}
                                 </div>
-                                <div style={{ position: "relative", marginTop: "8px" }}>
-                                    <button
-                                        onClick={() => toggleDropdown(message.messageId)}
-                                        style={{
-                                            background: "none",
-                                            border: "none",
-                                            color: "#000",
-                                            cursor: "pointer",
-                                            fontSize: "16px",
-                                        }}
-                                    >
-                                        ⋮
-                                    </button>
-                                    {dropdownOpen === message.messageId && (
-                                        <div
+
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
+                                    <span style={{ fontSize: "12px", color: "#b0b0b0" }}>
+                                        {messageDTO.userLiked ? messageDTO.userLiked.length : 0} likes
+                                    </span>
+                                    <div style={{ position: "relative", marginTop: "8px" }}>
+                                        <button
+                                            onClick={() => toggleDropdown(message.messageId)}
                                             style={{
-                                                position: "absolute",
-                                                top: "100%",
-                                                right: "0",
-                                                background: "#333",
-                                                border: "1px solid #ddd",
-                                                borderRadius: "4px",
-                                                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-                                                zIndex: 1000,
+                                                background: "none",
+                                                border: "none",
+                                                color: "#000",
+                                                cursor: "pointer",
+                                                fontSize: "16px",
                                             }}
                                         >
-                                            <button
-                                                onClick={() => handleTagMessage(message.messageId)}
+                                            ⋮
+                                        </button>
+                                        {dropdownOpen === message.messageId && (
+                                            <div
+                                                style={{
+                                                    position: "absolute",
+                                                    top: "100%",
+                                                    right: "0",
+                                                    background: "#333",
+                                                    border: "1px solid #ddd",
+                                                    borderRadius: "4px",
+                                                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                                                    zIndex: 1000,
+                                                }}
+                                            >
+                                                {messageDTO.userLiked.some(msgUser => msgUser.userId === user.userId) ? (
+                                                    <button
+                                                        onClick={() => {
+                                                            unlikeMessageAPI(message.messageId, client);
+                                                            setDropdownOpen(null);
+                                                        }}
+                                                        style={{
+                                                            display: "block",
+                                                            padding: "8px 16px",
+                                                            width: "100%",
+                                                            textAlign: "left",
+                                                            background: "none",
+                                                            border: "none",
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        Unlike
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => {
+                                                            likeMessageAPI(message.messageId, client);
+                                                            setDropdownOpen(null);
+                                                        }}
+                                                        style={{
+                                                            display: "block",
+                                                            padding: "8px 16px",
+                                                            width: "100%",
+                                                            textAlign: "left",
+                                                            background: "none",
+                                                            border: "none",
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        Like
+                                                    </button>
+                                                )}
+                                                {/* <button
+                                                onClick={() => handleLikeMessage(message.messageId)}
                                                 style={{
                                                     display: "block",
                                                     padding: "8px 16px",
@@ -272,16 +383,17 @@ const Chat = ({ room }) => {
                                                 }}
                                             >
                                                 Like
-                                            </button>
-                                        </div>
-                                    )}
+                                            </button> */}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     );
                 })}
             </div>
-            <ChatInput room={room} />
+            <ChatInput room={room} socket={client} />
         </div>
     );
 };

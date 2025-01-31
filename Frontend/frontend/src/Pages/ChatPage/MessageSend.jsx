@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { io } from 'socket.io-client';
 
-const socket = io("http://localhost:3000");
+// const socket = io("http://localhost:3000");
 
-const sendMessage = async (message, isAnonymous, roomId) => {
+const sendMessage = async (message, isAnonymous, roomId, socket) => {
   const refreshToken = localStorage.getItem('refreshToken');
   const response = await fetch('http://localhost:8081/user/room/message/send', {
     method: 'POST',
@@ -23,7 +23,7 @@ const sendMessage = async (message, isAnonymous, roomId) => {
   }
 };
 
-const sendPoll = async (pollQuestion, pollOptions, isAnonymous, roomId) => {
+const sendPoll = async (pollQuestion, pollOptions, isAnonymous, roomId, socket) => {
   const refreshToken = localStorage.getItem('refreshToken');
   const response = await fetch('http://localhost:8081/user/room/poll/send', {
     method: 'POST',
@@ -43,7 +43,7 @@ const sendPoll = async (pollQuestion, pollOptions, isAnonymous, roomId) => {
   }
 };
 
-const ChatInput = ({room}) => {
+const ChatInput = ({room, socket}) => {
   const [isNewPoll, setIsNewPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState([""]);
   const [pollQuestion, setPollQuestion] = useState("");
@@ -63,7 +63,7 @@ const ChatInput = ({room}) => {
   const handlePollSend = () => {
     console.log("Poll Question:", pollQuestion);
     console.log("Poll Options:", pollOptions);
-    sendPoll(pollQuestion, pollOptions, isAnonymous, room.roomId);
+    sendPoll(pollQuestion, pollOptions, isAnonymous, room.roomId, socket);
     setIsNewPoll(false); // Close modal
   };
 
@@ -74,7 +74,7 @@ const ChatInput = ({room}) => {
   };
 
   const handleSendMessage = () => {
-    sendMessage(newMessage, isAnonymous, room.roomId);
+    sendMessage(newMessage, isAnonymous, room.roomId, socket);
     setNewMessage("");
   };
 

@@ -167,8 +167,8 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
-    @PostMapping("user/room/message/like")
-    public ResponseEntity<Like> likeMessage(
+    @PatchMapping("user/room/message/like")
+    public ResponseEntity<LikeMessage> likeMessage(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
             @RequestBody Map<String, Integer> request
     ){
@@ -183,8 +183,30 @@ public class MessageController {
         if(user.isPresent() && message.isPresent() &&
                 messageService.isMessageBelongToSameRoomAsUser(message.get().getMessageId(), username)
         ){
-            Like like = likeService.messageLike(user.get(), message.get());
+            LikeMessage like = likeService.messageLike(user.get(), message.get());
             return ResponseEntity.status(HttpStatus.OK).body(like);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
+    @PatchMapping("user/room/message/unlike")
+    public ResponseEntity<LikeMessage> unlikeMessage(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
+            @RequestBody Map<String, Integer> request
+    ){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(null);
+        }
+        String token = authHeader.substring(7);
+        String username = jwtService.extractUsername(token);
+        Optional<Person> user = personService.userProfile(username);
+        Optional<Message> message = messageService.getMessageById(request.get("messageId"));
+        if(user.isPresent() && message.isPresent() &&
+                messageService.isMessageBelongToSameRoomAsUser(message.get().getMessageId(), username)
+        ){
+            likeService.messageUnlike(user.get(), message.get());
+            return ResponseEntity.status(HttpStatus.OK).body(new LikeMessage(user.get(), message.get()));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
