@@ -124,7 +124,7 @@ const unlikeMessageAPI = async (messageId, socket) => {
     }
 };
 
-const Chat = ({ room }) => {
+const Chat = ({ room}) => {
     const [messages, setMessages] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null); // To track dropdown states
     const [user, setUser] = useState(null);
@@ -213,9 +213,7 @@ const Chat = ({ room }) => {
                 };
             }
         });
-        return () => {
-            socket.emit("leaveRoom", room.roomId);
-        };
+        
     }, [room]);
 
     useEffect(() => {

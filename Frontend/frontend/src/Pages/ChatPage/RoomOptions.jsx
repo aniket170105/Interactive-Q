@@ -35,7 +35,7 @@ const fetchMemebers = async (room) => {
         return [];
     }
 };
-const removeUser = async (userId, roomId) => {
+const removeUser = async (userId, roomId, socket, setIsToBeRefreshed) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/removeUser', {
         method: 'DELETE',
@@ -47,13 +47,15 @@ const removeUser = async (userId, roomId) => {
     });
     if(response.ok){
         console.log("User Removed");
+        socket.emit("rejectUser", {"roomId": roomId, "userId": userId});
+        setIsToBeRefreshed((prev) => !prev);
     }
     else{
         console.log("Error while removing user");
         alert(await response.text());
     }
 };
-const acceptUser = async (userId, roomId) => {
+const acceptUser = async (userId, roomId, socket, setIsToBeRefreshed) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/authenticateUser', {
         method: 'PATCH',
@@ -65,13 +67,15 @@ const acceptUser = async (userId, roomId) => {
     });
     if(response.ok){
         console.log("User Accepted");
+        socket.emit("acceptUser", {"roomId": roomId, "userId": userId});
+        setIsToBeRefreshed((prev) => !prev);
     }
     else{
         console.log("Error while accepting user");
         alert("You are not authorized to perform this action");
     }
 };
-const renameGroup = async (roomId, newGroupName) => {
+const renameGroup = async (roomId, newGroupName, socket, setIsToBeRefreshed) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/rename', {
         method: 'PATCH',
@@ -83,13 +87,17 @@ const renameGroup = async (roomId, newGroupName) => {
     });
     if(response.ok){
         console.log("Group Renamed");
+        socket.emit("renameGroup", {"roomId": roomId});
+        setIsToBeRefreshed((prev) => !prev);
     }
     else{
         console.log("Error while renaming group");
         alert("You are not authorized to perform this action");
     }
 };
-const leaveGroup = async (roomId) => {
+
+// Only leave group (SOCKET) is not handled every other action is handled
+const leaveGroup = async (roomId, socket, setIsToBeRefreshed) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/leaveRoom', {
         method: 'DELETE',
@@ -101,13 +109,14 @@ const leaveGroup = async (roomId) => {
     });
     if(response.ok){
         console.log("Group Left");
+        setIsToBeRefreshed((prev) => !prev);
     }
     else{
         console.log("Error while leaving group");
         alert(await response.text());
     }
 };
-const endGroup = async (roomId) => {
+const endGroup = async (roomId, socket, setIsToBeRefreshed) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/deleteRoom', {
         method: 'DELETE',
@@ -119,6 +128,8 @@ const endGroup = async (roomId) => {
     });
     if(response.ok){
         console.log("Group Ended");
+        socket.emit("endGroup", {"roomId": roomId});
+        setIsToBeRefreshed((prev) => !prev);
     }
     else{
         console.log("Error while ending group");
@@ -126,7 +137,7 @@ const endGroup = async (roomId) => {
     }
 };
 
-const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoined}) => {
+const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoined, socket, setIsToBeRefreshed}) => {
     const [showOptions, setShowOptions] = useState(false);
     const [showMembers, setShowMembers] = useState(false);
     const [members, setMembers] = useState([]);
@@ -137,15 +148,15 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
     const memberRemoveAddRejectAction = async (action, userId) => {
         if(action === "accept"){
             console.log(room);
-            acceptUser(userId, room.roomId);
+            acceptUser(userId, room.roomId, socket, setIsToBeRefreshed);
             setRefreshMembers(!refreshMemebers);
         }
         else if(action === "reject"){
-            removeUser(userId, room.roomId);
+            removeUser(userId, room.roomId, socket, setIsToBeRefreshed);
             setRefreshMembers(!refreshMemebers);
         }
         else if(action === "remove"){
-            removeUser(userId, room.roomId);
+            removeUser(userId, room.roomId, socket, setIsToBeRefreshed);
             setRefreshMembers(!refreshMemebers);
         }
     };
@@ -205,7 +216,7 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
                     }}
                 >
                     <button
-                        onClick={() => {leaveGroup(room.roomId); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
+                        onClick={() => {leaveGroup(room.roomId, socket, setIsToBeRefreshed); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
                         style={menuButtonStyle}
                     >
                         Leave Group
@@ -224,7 +235,7 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
                         Members
                     </button>
                     <button
-                        onClick={() => {endGroup(room.roomId); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
+                        onClick={() => {endGroup(room.roomId, socket, setIsToBeRefreshed); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
                         style={menuButtonStyle}
                     >
                         End Group
@@ -255,7 +266,7 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
                         <div className="modal-buttons">
                             <button onClick={()=>{
                                 console.log("Rename Group");
-                                renameGroup(room.roomId, newGroupName);
+                                renameGroup(room.roomId, newGroupName, socket, setIsToBeRefreshed);
                                 setIsRenameGroup(false);
                                 setTimeout(() => {
                                     setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);

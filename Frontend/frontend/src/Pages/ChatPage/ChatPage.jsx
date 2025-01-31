@@ -94,6 +94,8 @@ const chatPage = () => {
     const [filteredRooms, setFilteredRooms] = useState([]);
     const [selectedRoom, setSelectedRoom] = useState(null);
 
+    const [isToBeRefreshed, setIsToBeRefreshed] = useState(false);
+
     const [isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoined] = useState(false);
 
     useEffect(() => {
@@ -107,6 +109,9 @@ const chatPage = () => {
         console.log(rooms.length);
     }, [isNewGroupCreatedOrJoined]);
 
+    useEffect(() => {
+        fetchRooms(setRoom, setFilteredRooms);
+    },[isToBeRefreshed]);
 
     const handleSearchChange = (e) => {
         const input = e.target.value.toLowerCase();
@@ -196,7 +201,8 @@ const chatPage = () => {
                             )}
                         </div>
                     </div>
-                    <RoomPage room={selectedRoom} isNewGroupCreatedOrJoined={isNewGroupCreatedOrJoined} setIsNewGroupCreatedOrJoined={setIsNewGroupCreatedOrJoined}/>
+                    <RoomPage room={selectedRoom} isNewGroupCreatedOrJoined={isNewGroupCreatedOrJoined} setIsNewGroupCreatedOrJoined={setIsNewGroupCreatedOrJoined} 
+                    isToBeRefreshed={isToBeRefreshed} setIsToBeRefreshed={setIsToBeRefreshed}/>
                 </div>
             </div>
             {isNewChat && (

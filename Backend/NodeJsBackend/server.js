@@ -34,6 +34,22 @@ io.on('connection', (socket) => {
         io.to(data.option.message.room.roomId).emit('vote', data);
     });
 
+    socket.on('rejectUser', (data) => {
+        io.to(data.roomId).emit('rejectUser', data);
+    });
+
+    socket.on('acceptUser', (data) => {
+        io.to(data.roomId).emit('acceptUser', data);
+    });
+
+    socket.on("renameGroup", (data) => {
+        io.to(data.roomId).emit("renameGroup", data);
+    });
+
+    socket.on("endGroup", (data) => {
+        io.to(data.roomId).emit("endGroup", data);
+    });
+
     socket.on('like', (data) => {
         // Broadcast the like to all clients in the room
         io.to(data.message.room.roomId).emit('like', data);
