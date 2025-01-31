@@ -146,7 +146,7 @@ public class MessageController {
     }
 
     @PatchMapping("user/room/poll/vote")
-    public ResponseEntity<Vote> likeMessage(
+    public ResponseEntity<Vote> voteInPoll(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
             @RequestBody Map<String, Integer> request
     ){
@@ -163,6 +163,28 @@ public class MessageController {
         ){
             Vote vote = voteService.voteInPoll(user.get(), pollOption.get());
             return ResponseEntity.status(HttpStatus.OK).body(vote);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
+    @PostMapping("user/room/message/like")
+    public ResponseEntity<Like> likeMessage(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader,
+            @RequestBody Map<String, Integer> request
+    ){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(null);
+        }
+        String token = authHeader.substring(7);
+        String username = jwtService.extractUsername(token);
+        Optional<Person> user = personService.userProfile(username);
+        Optional<Message> message = messageService.getMessageById(request.get("messageId"));
+        if(user.isPresent() && message.isPresent() &&
+                messageService.isMessageBelongToSameRoomAsUser(message.get().getMessageId(), username)
+        ){
+            Like like = likeService.messageLike(user.get(), message.get());
+            return ResponseEntity.status(HttpStatus.OK).body(like);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
