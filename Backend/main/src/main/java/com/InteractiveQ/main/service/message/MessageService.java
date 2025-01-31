@@ -33,6 +33,8 @@ public class MessageService {
     RoomRepository roomRepository;
     @Autowired
     VoteRepository voteRepository;
+    @Autowired
+    LikeRepository likeRepository;
 
     public Boolean isUserBelongToRoom(String userId, Integer roomId){
         Optional<BelongToRoom> belongToRoom = belongToRoomRepository.findById(new BelongToRoomId(personRepository.findByUserId(userId).get(),
@@ -94,9 +96,11 @@ public class MessageService {
                     List <Vote> votes = voteRepository.findByOption(pollOption);
                     pollOptionDTOS.add(new PollOptionDTO(pollOption, votes.stream().map(Vote::getPerson).toList()));
                 }
-
                 messageDTO.setPollOptions(pollOptionDTOS);
             }
+
+            messageDTO.setUserLiked(likeRepository.findByMessage(message)
+                    .stream().map((e)-> e.getPerson()).toList());
 //            messageDTO.setIsCurrentUser(message.getUser().getUserId().equals(user.getUserId()));
             result.add(messageDTO);
         }
