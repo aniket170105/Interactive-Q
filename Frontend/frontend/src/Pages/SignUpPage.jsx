@@ -1,7 +1,6 @@
 import React from "react";
-import { useState } from 'react'
-
-
+import { useState, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import "./signuppage.css";
 import { redirect } from "react-router-dom";
 
@@ -30,6 +29,15 @@ const SignUpPage = () => {
     const [error, setError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    const navigate = useNavigate();
+    useEffect(() => {
+        document.title = "InteractiveQ - SignUp";
+        const token = localStorage.getItem('refreshToken');
+        if (token) {
+            navigate('/chat');
+        }
+    }, [navigate]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(false);
@@ -37,6 +45,7 @@ const SignUpPage = () => {
             const response = await signUpUser(fullName, email, password);
             if(response.ok){
                 console.log("Account created succesfully");
+                navigate('/signin');
                 // redirect("/Sign")
             }
             else{
@@ -113,7 +122,9 @@ const SignUpPage = () => {
                 </form>
                 <p className="text-muted">
                     Already have an account?{" "}
-                    <a href="/SignIn" className="link">Sign In</a>
+                    <a className="link">
+                        <Link to="/signin">Sign In</Link>
+                    </a>
                 </p>
             </div>
         </div>

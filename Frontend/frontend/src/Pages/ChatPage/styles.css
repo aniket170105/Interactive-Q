@@ -115,6 +115,14 @@
     color: #e0e0e0;
 }
 
+.profile-dropdown .profile-icon:nth-child(2) {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    color: #f29696;
+    cursor: pointer;
+}
+
 .dropdown-content {
     position: absolute;
     top: 35px;

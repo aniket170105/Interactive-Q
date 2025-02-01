@@ -11,9 +11,7 @@ import SignUpPage from './Pages/SignUpPage.jsx'
 createRoot(document.getElementById('root')).render(
   <>
   {/* // <StrictMode> */}
-    {/* <BrowserRouter> */}
-      <ChatPage/>
-    {/* </BrowserRouter> */}
+      <App/>
   {/* // </StrictMode> */}
   </>
 )

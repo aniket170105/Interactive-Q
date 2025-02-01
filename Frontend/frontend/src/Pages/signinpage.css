@@ -1,4 +1,4 @@
-* {
+/* * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -13,13 +13,33 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 64px;
+} */
+
+.signin-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height of the viewport */
+    background-color: black; /* Light background */
+    color: white;
+    padding: 16px;
 }
 
 .container {
+    background: black;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Limiting width */
+    text-align: center;
+}
+
+/* .container {
     width: 100%;
     min-width: 400px;
     text-align: center;
-}
+} */
 
 .error {
     background-color: #ffe4e4;

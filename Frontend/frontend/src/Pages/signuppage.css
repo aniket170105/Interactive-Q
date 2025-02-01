@@ -1,4 +1,4 @@
-.signuppage {
+/* .signuppage {
     margin: 0;
     font-family: Arial, sans-serif;
     background-color: black;
@@ -6,7 +6,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* min-height: 100vh; */
+    min-height: 100vh;
     padding: 16px;
 }
 
@@ -18,9 +18,28 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     justify-content: flex-start;
-    /* justify-content: space-around; */
+    justify-content: space-around;
+} */
+
+.signuppage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height of the viewport */
+    background-color: black; /* Light background */
+    color: white;
+    padding: 16px;
 }
 
+.container {
+    background: black;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Limiting width */
+    text-align: center;
+}
 
 .text-center {
     text-align: center;
@@ -117,4 +136,9 @@ input[type="checkbox"] {
     color: #b3b3b3;
     text-align: center;
     margin-top: 24px;
+}
+
+.text-muted a {
+    color: #b3b3b3;
+    text-decoration: underline;
 }

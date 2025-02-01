@@ -11,8 +11,13 @@ body {
     background-color: black;
     line-height: 1.5;
 }
+/* .container {
+    width: 100%;
+    margin: 50px auto; /* Centers horizontally 
+    text-align: center;
+} */
 
-.container {
+.homepage-container {
     display: flex;
     flex-direction: column;
     justify-content: space-between;

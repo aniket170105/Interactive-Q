@@ -1,17 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom'
 import './homepage.css';
+import { use } from 'react';
 
 const HomePage = () => {
+    const navigate = useNavigate();
+    useEffect(() => {
+        document.title = "InteractiveQ - Home";
+        const token = localStorage.getItem('refreshToken');
+        if (token) {
+            navigate('/chat');
+        }
+    }, [navigate]);
     return (
-        <div class="container">
-            <header class="header">
+        <div class="homepage-container" >
+            <header class="header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center' ,
+                padding: '1rem 2rem', borderBottom: '1px solid #444', background:"black", color:"white"
+            }} >
                 <div class="logo">
                     <span class="icon">💬</span>
                     <span>InteractiveQ</span>
                 </div>
                 <nav class="nav">
-                    <a href="/SignIn" class="btn ghost">Log in</a>
-                    <a href="/SignUp" class="btn">Sign up</a>
+                    <a class="btn ghost" style={{padding:"10px", borderRadius:"4px" ,
+                        textDecoration:"none", color:"white", background:"transparent", textAlign:"center", fontSize:"1rem",
+                        border: "1px solid white"
+                    }} onClick={()=>{navigate('/signin')}}>Log In</a>
+                    <a href="/SignUp" class="btn" style={{padding:"10px", borderRadius:"4px" ,
+                        textDecoration:"none", color:"white", background:"transparent", textAlign:"center", fontSize:"1rem",
+                        border: "1px solid white"
+                    }} onClick={()=>{navigate('/signup')}}>Signup</a>
                 </nav>
             </header>
 
@@ -22,7 +40,7 @@ const HomePage = () => {
                         <p>
                             Create interactive Q&A sessions, live polls, and more with InteractiveQ. Perfect for meetings, events, and classrooms.
                         </p>
-                        <button class="btn primary">Get Started</button>
+                        <button class="btn primary" onClick={()=>{navigate('/signup')}}>Get Started</button>
                     </div>
                 </section>
             </main>

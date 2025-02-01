@@ -1,5 +1,7 @@
 import React from "react";
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+
 import "./signinpage.css";
 
 const signInUser = async (email, password) => {
@@ -20,6 +22,7 @@ const signInUser = async (email, password) => {
         const { refreshToken, sessionToken } = await response.json();
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("sessionToken", sessionToken);
+        return true;
     }
     else {
         console.log("Throwing Error");
@@ -33,12 +36,22 @@ const SignInPage = () => {
     const [error, setError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    const navigate = useNavigate();
+    useEffect(() => {
+        document.title = "InteractiveQ - Log In";
+        const token = localStorage.getItem('refreshToken');
+        if (token) {
+            navigate('/chat');
+        }
+    }, [navigate]);
+
     const handleSubmit = async (e) => {
         setError(false);
         e.preventDefault();
         try {
             await signInUser(email, password);
             console.log("Handled the Log in");
+            navigate('/chat');
         }
         catch (error) {
             setError(true);
@@ -48,7 +61,7 @@ const SignInPage = () => {
     }
 
     return (
-        <div>
+        <div className="signin-page">
             <div className="container">
                 <div className="form-wrapper">
                     <div className="header">
@@ -87,7 +100,9 @@ const SignInPage = () => {
                         <button type="submit" className="submit-btn">Continue</button>
                     </form>
                     <p className="signup-link">
-                        Don't have an account? <a href="/SignUp">Sign Up</a>
+                        Don't have an account? <a>
+                            <Link to="/signup">Sign Up</Link>
+                        </a>
                     </p>
                 </div>
             </div>

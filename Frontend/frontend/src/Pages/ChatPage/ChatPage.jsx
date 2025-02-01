@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
+import { useNavigate, Link } from 'react-router-dom';
 import "./styles.css";
 import RoomPage from './RoomPage';
 
@@ -17,10 +17,11 @@ const refreshTokens = async () => {
         const { refreshToken, sessionToken } = await response.json();
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("sessionToken", sessionToken);
-        console.log("GG");
+        return true;
     }
     else {
         console.log("Error Refreshing Token");
+        return false;
     }
 };
 
@@ -83,6 +84,23 @@ const joinNewGroupAPI = async (roomId) => {
         console.log("Error Encoutered while creating Room");
     }
 };
+const fetchUser = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await fetch('http://localhost:8081/user/Profile', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${refreshToken}`
+        },
+    });
+    if (response.ok) {
+        return await response.json();
+    }
+    else {
+        console.log("Error while fetching user");
+        return null;
+    }
+};
 
 const chatPage = () => {
     const [isNewChat, setIsNewChat] = useState(false);
@@ -93,14 +111,28 @@ const chatPage = () => {
     const [searchText, setSearchText] = useState("");
     const [filteredRooms, setFilteredRooms] = useState([]);
     const [selectedRoom, setSelectedRoom] = useState(null);
-
     const [isToBeRefreshed, setIsToBeRefreshed] = useState(false);
-
     const [isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoined] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+
+    const navigate = useNavigate();
+    useEffect(() => {
+        document.title = "InteractiveQ - Chat";
+        refreshTokens().then((state) => {
+            if (state === false) {
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('sessionToken');
+                navigate('/signin');
+            }
+        });
+        fetchUser().then((data) => {
+            setCurrentUser(data);
+        });
+    }, []);
 
     useEffect(() => {
         console.log("ChatPage mounted");
-        refreshTokens();
+
         setTimeout(() => {
             fetchRooms(setRoom, setFilteredRooms);
         }, 500);
@@ -111,7 +143,7 @@ const chatPage = () => {
 
     useEffect(() => {
         fetchRooms(setRoom, setFilteredRooms);
-    },[isToBeRefreshed]);
+    }, [isToBeRefreshed]);
 
     const handleSearchChange = (e) => {
         const input = e.target.value.toLowerCase();
@@ -166,10 +198,12 @@ const chatPage = () => {
                         }}
                     />
                     <div className="profile-dropdown">
-                        <span className="profile-icon">Profile</span>
-                        <div className="dropdown-content">
-                            <button>Logout</button>
-                        </div>
+                        <span className="profile-icon">{currentUser ? `(${currentUser.name}) ` : "Fetching "}</span>
+                        <span className='profile-icon' onClick={()=>{
+                            localStorage.removeItem('refreshToken');
+                            localStorage.removeItem('sessionToken');
+                            navigate('/signin');
+                        }}>LogOut</span>
                     </div>
                 </nav>
                 <div className="main-content">
@@ -190,7 +224,7 @@ const chatPage = () => {
                                         key={room.roomId}
                                         className="chat-item"
                                         data-name={room.roomName}
-                                        onClick={()=>setSelectedRoom(room)}
+                                        onClick={() => setSelectedRoom(room)}
                                     >
                                         <h4>{room.roomName}</h4>
                                         <p>{room.isEnded ? "Ended" : "Active"}</p>
@@ -201,8 +235,8 @@ const chatPage = () => {
                             )}
                         </div>
                     </div>
-                    <RoomPage room={selectedRoom} isNewGroupCreatedOrJoined={isNewGroupCreatedOrJoined} setIsNewGroupCreatedOrJoined={setIsNewGroupCreatedOrJoined} 
-                    isToBeRefreshed={isToBeRefreshed} setIsToBeRefreshed={setIsToBeRefreshed}/>
+                    <RoomPage room={selectedRoom} isNewGroupCreatedOrJoined={isNewGroupCreatedOrJoined} setIsNewGroupCreatedOrJoined={setIsNewGroupCreatedOrJoined}
+                        isToBeRefreshed={isToBeRefreshed} setIsToBeRefreshed={setIsToBeRefreshed} />
                 </div>
             </div>
             {isNewChat && (
