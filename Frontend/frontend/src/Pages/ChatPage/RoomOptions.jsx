@@ -208,7 +208,7 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
                         position: "absolute",
                         top: "100%",
                         right: "0",
-                        backgroundColor: "black",
+                        backgroundColor: "#252525",
                         border: "1px solid #ccc",
                         borderRadius: "5px",
                         zIndex: 10,
@@ -286,28 +286,12 @@ const menuButtonStyle = {
     display: "block",
     width: "100%",
     padding: "10px",
-    backgroundColor: "white",
+    backgroundColor: "#252525",
+    color: "#ccc",
     border: "none",
     textAlign: "left",
     cursor: "pointer",
     fontSize: "14px",
-};
-
-const memberButtonStyle = {
-    marginLeft: "10px",
-    padding: "5px 10px",
-    fontSize: "12px",
-    cursor: "pointer",
-};
-
-const closeButtonStyle = {
-    marginTop: "10px",
-    padding: "10px",
-    backgroundColor: "red",
-    color: "white",
-    cursor: "pointer",
-    border: "none",
-    borderRadius: "5px",
 };
 
 export default RoomOptions;

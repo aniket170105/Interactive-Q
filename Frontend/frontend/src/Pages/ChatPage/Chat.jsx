@@ -213,6 +213,10 @@ const Chat = ({ room}) => {
                 };
             }
         });
+
+        return () => {
+            socket.emit("leaveRoom", room.roomId);
+        }
         
     }, [room]);
 
@@ -252,7 +256,7 @@ const Chat = ({ room}) => {
                                 style={{
                                     padding: "12px",
                                     borderRadius: "16px",
-                                    maxWidth: "300px",
+                                    maxWidth: "400px",
                                     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                                     backgroundColor: isSent ? "#333" : "#333",
                                     color: isSent ? "#fff" : "#000",
