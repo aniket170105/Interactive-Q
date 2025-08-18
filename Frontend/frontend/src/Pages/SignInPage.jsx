@@ -2,8 +2,6 @@ import React from "react";
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 
-import "./signinpage.css";
-
 const signInUser = async (email, password) => {
     const user = {
         "email": email,
@@ -61,50 +59,51 @@ const SignInPage = () => {
     }
 
     return (
-        <div className="signin-page">
-            <div className="container">
-                <div className="form-wrapper">
-                    <div className="header">
-                        <h1>Log In</h1>
-                    </div>
-
-                    {error &&
-                        <div id="error" className="error">
-                            {errorMessage}
-                        </div>
-                    }
-
-                    <form id="signin-form" className="form" onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="email">Email address</label>
-                            <input
-                                type="email"
-                                id="email"
-                                placeholder="name@example.com"
-                                required
-                                value={email}
-                                onChange={(e) => { setEmail(e.target.value); }}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                required
-                                value={password}
-                                onChange={(e) => { setPassword(e.target.value); }}
-                            />
-                            <a href="/" className="forgot-password">Forgot password?</a>
-                        </div>
-                        <button type="submit" className="submit-btn">Continue</button>
-                    </form>
-                    <p className="signup-link">
-                        Don't have an account? <a>
-                            <Link to="/signup">Sign Up</Link>
-                        </a>
-                    </p>
+        <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
+            <div className="w-full max-w-md bg-neutral-900/60 backdrop-blur rounded-xl border border-neutral-800 p-6 shadow-lg">
+                <div className="text-center mb-4">
+                    <h1 className="text-2xl font-semibold">Log In</h1>
                 </div>
+
+                {error && (
+                    <div id="error" className="mb-4 text-sm rounded-md border border-red-500/30 bg-red-500/10 text-red-300 px-3 py-2">
+                        {errorMessage}
+                    </div>
+                )}
+
+                <form id="signin-form" onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label htmlFor="email" className="block text-sm text-neutral-300 mb-1">Email address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="name@example.com"
+                            required
+                            value={email}
+                            onChange={(e) => { setEmail(e.target.value); }}
+                            className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-500"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="password" className="block text-sm text-neutral-300 mb-1">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            required
+                            value={password}
+                            onChange={(e) => { setPassword(e.target.value); }}
+                            className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-500"
+                        />
+                        <a href="/" className="inline-block mt-2 text-xs text-neutral-400 hover:text-white">Forgot password?</a>
+                    </div>
+                    <button type="submit" className="w-full rounded-md bg-white text-black font-semibold py-2 hover:bg-white/90 transition">
+                        Continue
+                    </button>
+                </form>
+
+                <p className="mt-4 text-sm text-neutral-400">
+                    Don't have an account? <Link to="/signup" className="underline hover:text-white">Sign Up</Link>
+                </p>
             </div>
         </div>
     );

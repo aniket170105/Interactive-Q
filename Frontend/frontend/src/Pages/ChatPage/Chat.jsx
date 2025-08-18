@@ -232,11 +232,10 @@ const Chat = ({ room}) => {
     };
 
     return (
-        <div className="chat-container" style={{ display: "flex", flexDirection: "column", height: "100vh", maxHeight: "100vh" }}>
+    <div className="flex flex-col h-full max-h-full min-h-0">
             <div
-                className="chat-content"
                 id="chat-content"
-                style={{ flex: 1, overflowY: "auto", padding: "16px", backgroundColor: "#1e1e1e", color: "#e0e0e0", maxHeight: "calc(100vh - 40vh)" }}
+        className="flex-1 min-h-0 overflow-y-auto p-2 sm:p-4 pb-24 bg-neutral-50 text-neutral-900 dark:bg-neutral-900/40 dark:text-neutral-100"
             >
                 {messages.map((messageDTO) => {
                     const { message, pollOptions } = messageDTO;
@@ -244,33 +243,13 @@ const Chat = ({ room}) => {
                     return (
                         <div
                             key={message.messageId}
-                            className="message"
-                            style={{
-                                display: "flex",
-                                justifyContent: isSent ? "flex-end" : "flex-start",
-                                marginBottom: "16px",
-                            }}
+                            className={`flex mb-4 ${isSent ? 'justify-end' : 'justify-start'}`}
                         >
                             <div
-                                className="message-bubble"
-                                style={{
-                                    padding: "12px",
-                                    borderRadius: "16px",
-                                    maxWidth: "400px",
-                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                    backgroundColor: isSent ? "#333" : "#333",
-                                    color: isSent ? "#fff" : "#000",
-                                }}
+                                className={`px-3 py-2 rounded-2xl max-w-[85%] sm:max-w-[520px] shadow bg-white text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 break-words`}
                             >
                                 {!message.isAnonymous && (
-                                    <p
-                                        style={{
-                                            fontWeight: "lighter",
-                                            fontSize: "12px", // Smaller font size
-                                            color: "#b0b0b0", // Light grey color
-                                            marginBottom: "4px",
-                                        }}
-                                    >
+                                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1">
                                         {message.user.name}
                                     </p>
                                 )}
@@ -301,55 +280,26 @@ const Chat = ({ room}) => {
                                     //     <p>{message.text}</p>
                                     // )
                                 }
-                                <div style={{ fontSize: "12px", color: "#6c757d", marginTop: "8px" }}>
-                                    {new Date(message.postTime).toLocaleTimeString()}
-                                </div>
+                                <div className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-2">{new Date(message.postTime).toLocaleTimeString()}</div>
 
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
-                                    <span style={{ fontSize: "12px", color: "#b0b0b0" }}>
-                                        {messageDTO.userLiked ? messageDTO.userLiked.length : 0} likes
-                                    </span>
-                                    <div style={{ position: "relative", marginTop: "8px" }}>
+                                <div className="flex items-center justify-between mt-2">
+                                    <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{messageDTO.userLiked ? messageDTO.userLiked.length : 0} likes</span>
+                                    <div className="relative mt-1">
                                         <button
                                             onClick={() => toggleDropdown(message.messageId)}
-                                            style={{
-                                                background: "none",
-                                                border: "none",
-                                                color: "#000",
-                                                cursor: "pointer",
-                                                fontSize: "16px",
-                                            }}
+                                            className="text-neutral-600 hover:text-black dark:text-neutral-300 dark:hover:text-white px-1"
                                         >
                                             ⋮
                                         </button>
                                         {dropdownOpen === message.messageId && (
-                                            <div
-                                                style={{
-                                                    position: "absolute",
-                                                    top: "100%",
-                                                    right: "0",
-                                                    background: "#333",
-                                                    border: "1px solid #ddd",
-                                                    borderRadius: "4px",
-                                                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-                                                    zIndex: 1000,
-                                                }}
-                                            >
+                                            <div className="absolute top-full right-0 bg-white text-neutral-900 border border-neutral-200 rounded-md shadow-md z-10 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700">
                                                 {messageDTO.userLiked.some(msgUser => msgUser.userId === user.userId) ? (
                                                     <button
                                                         onClick={() => {
                                                             unlikeMessageAPI(message.messageId, client);
                                                             setDropdownOpen(null);
                                                         }}
-                                                        style={{
-                                                            display: "block",
-                                                            padding: "8px 16px",
-                                                            width: "100%",
-                                                            textAlign: "left",
-                                                            background: "none",
-                                                            border: "none",
-                                                            cursor: "pointer",
-                                                        }}
+                                                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
                                                     >
                                                         Unlike
                                                     </button>
@@ -359,33 +309,11 @@ const Chat = ({ room}) => {
                                                             likeMessageAPI(message.messageId, client);
                                                             setDropdownOpen(null);
                                                         }}
-                                                        style={{
-                                                            display: "block",
-                                                            padding: "8px 16px",
-                                                            width: "100%",
-                                                            textAlign: "left",
-                                                            background: "none",
-                                                            border: "none",
-                                                            cursor: "pointer",
-                                                        }}
+                                                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
                                                     >
                                                         Like
                                                     </button>
                                                 )}
-                                                {/* <button
-                                                onClick={() => handleLikeMessage(message.messageId)}
-                                                style={{
-                                                    display: "block",
-                                                    padding: "8px 16px",
-                                                    width: "100%",
-                                                    textAlign: "left",
-                                                    background: "none",
-                                                    border: "none",
-                                                    cursor: "pointer",
-                                                }}
-                                            >
-                                                Like
-                                            </button> */}
                                             </div>
                                         )}
                                     </div>

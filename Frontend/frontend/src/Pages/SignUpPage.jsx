@@ -1,7 +1,6 @@
 import React from "react";
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import "./signuppage.css";
 import { redirect } from "react-router-dom";
 
 const signUpUser = async (name, email, password) => {
@@ -60,21 +59,21 @@ const SignUpPage = () => {
     };
 
     return (
-        <div className="signuppage">
-            <div className="container">
-                <div className="text-center">
-                    <h1 className="title">Create an Account</h1>
+        <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
+            <div className="w-full max-w-md bg-neutral-900/60 backdrop-blur rounded-xl border border-neutral-800 p-6 shadow-lg">
+                <div className="text-center mb-4">
+                    <h1 className="text-2xl font-semibold">Create an Account</h1>
                 </div>
-                
-                {error &&             
-                    <div id="error" className="error">
+
+                {error && (
+                    <div id="error" className="mb-4 text-sm rounded-md border border-red-500/30 bg-red-500/10 text-red-300 px-3 py-2">
                         {errorMessage}
                     </div>
-                }
-               
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="fullName">Full Name</label>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label htmlFor="fullName" className="block text-sm text-neutral-300 mb-1">Full Name</label>
                         <input
                             type="text"
                             id="fullName"
@@ -83,10 +82,11 @@ const SignUpPage = () => {
                             value = {fullName}
                             onChange= {(e) => {setFullName(e.target.value)}}
                             required
+                            className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-500"
                         />
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="email">Email address</label>
+                    <div>
+                        <label htmlFor="email" className="block text-sm text-neutral-300 mb-1">Email address</label>
                         <input
                             type="email"
                             id="email"
@@ -95,10 +95,11 @@ const SignUpPage = () => {
                             value={email}
                             onChange={(e)=>{setEmail(e.target.value)}}
                             required
+                            className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-500"
                         />
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                    <div>
+                        <label htmlFor="password" className="block text-sm text-neutral-300 mb-1">Password</label>
                         <input
                             type="password"
                             id="password"
@@ -106,25 +107,21 @@ const SignUpPage = () => {
                             value={password}
                             onChange={(e)=>{setPassword(e.target.value)}}
                             required
+                            className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-500"
                         />
                     </div>
-                    <div className="checkbox-group">
-                        <input type="checkbox" id="terms" name="terms" required />
-                        <label htmlFor="terms">
-                            I agree to the{" "}
-                            <a href="/terms" className="link">Terms of Service</a> and{" "}
-                            <a href="/privacy" className="link">Privacy Policy</a>.
+                    <div className="flex items-start gap-2 text-sm text-neutral-300">
+                        <input type="checkbox" id="terms" name="terms" required className="mt-1 accent-white" />
+                        <label htmlFor="terms" className="leading-5">
+                            I agree to the <a href="/terms" className="underline">Terms of Service</a> and <a href="/privacy" className="underline">Privacy Policy</a>.
                         </label>
                     </div>
-                    <button type="submit" className="btn">
+                    <button type="submit" className="w-full rounded-md bg-white text-black font-semibold py-2 hover:bg-white/90 transition">
                         Create Account
                     </button>
                 </form>
-                <p className="text-muted">
-                    Already have an account?{" "}
-                    <a className="link">
-                        <Link to="/signin">Sign In</Link>
-                    </a>
+                <p className="mt-4 text-sm text-neutral-400 text-center">
+                    Already have an account? <Link to="/signin" className="underline hover:text-white">Sign In</Link>
                 </p>
             </div>
         </div>

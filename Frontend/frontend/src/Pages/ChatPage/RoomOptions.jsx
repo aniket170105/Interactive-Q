@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MemberSidebar from "./MemberSidebar";
-import { use } from "react";
+import { useToast } from '../../components/ToastProvider.jsx'
 
 const onOptionSelect = (option, setShowMembers) => {
     if(option === "members"){
@@ -31,11 +31,10 @@ const fetchMemebers = async (room) => {
         return await response.json();
     }
     else {
-        console.log("Error Encoutered while creating Room");
         return [];
     }
 };
-const removeUser = async (userId, roomId, socket, setIsToBeRefreshed) => {
+const removeUser = async (userId, roomId, socket, setIsToBeRefreshed, notify) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/removeUser', {
         method: 'DELETE',
@@ -51,11 +50,10 @@ const removeUser = async (userId, roomId, socket, setIsToBeRefreshed) => {
         setIsToBeRefreshed((prev) => !prev);
     }
     else{
-        console.log("Error while removing user");
-        alert(await response.text());
+        notify(await response.text(), { type: 'error' });
     }
 };
-const acceptUser = async (userId, roomId, socket, setIsToBeRefreshed) => {
+const acceptUser = async (userId, roomId, socket, setIsToBeRefreshed, notify) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/authenticateUser', {
         method: 'PATCH',
@@ -71,11 +69,10 @@ const acceptUser = async (userId, roomId, socket, setIsToBeRefreshed) => {
         setIsToBeRefreshed((prev) => !prev);
     }
     else{
-        console.log("Error while accepting user");
-        alert("You are not authorized to perform this action");
+        notify("You are not authorized to perform this action", { type: 'error' });
     }
 };
-const renameGroup = async (roomId, newGroupName, socket, setIsToBeRefreshed) => {
+const renameGroup = async (roomId, newGroupName, socket, setIsToBeRefreshed, notify) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/rename', {
         method: 'PATCH',
@@ -91,13 +88,12 @@ const renameGroup = async (roomId, newGroupName, socket, setIsToBeRefreshed) => 
         setIsToBeRefreshed((prev) => !prev);
     }
     else{
-        console.log("Error while renaming group");
-        alert("You are not authorized to perform this action");
+        notify("You are not authorized to perform this action", { type: 'error' });
     }
 };
 
 // Only leave group (SOCKET) is not handled every other action is handled
-const leaveGroup = async (roomId, socket, setIsToBeRefreshed) => {
+const leaveGroup = async (roomId, socket, setIsToBeRefreshed, notify) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/leaveRoom', {
         method: 'DELETE',
@@ -112,11 +108,10 @@ const leaveGroup = async (roomId, socket, setIsToBeRefreshed) => {
         setIsToBeRefreshed((prev) => !prev);
     }
     else{
-        console.log("Error while leaving group");
-        alert(await response.text());
+        notify(await response.text(), { type: 'error' });
     }
 };
-const endGroup = async (roomId, socket, setIsToBeRefreshed) => {
+const endGroup = async (roomId, socket, setIsToBeRefreshed, notify) => {
     const refreshToken = localStorage.getItem('refreshToken');
     const response = await fetch('http://localhost:8081/user/room/deleteRoom', {
         method: 'DELETE',
@@ -132,8 +127,7 @@ const endGroup = async (roomId, socket, setIsToBeRefreshed) => {
         setIsToBeRefreshed((prev) => !prev);
     }
     else{
-        console.log("Error while ending group");
-        alert(await response.text());
+        notify(await response.text(), { type: 'error' });
     }
 };
 
@@ -144,19 +138,20 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
     const [refreshMemebers, setRefreshMembers] = useState(false);
     const [isRenameGroup, setIsRenameGroup] = useState(false);
     const [newGroupName, setNewGroupName] = useState("");
+    const { notify } = useToast();
 
     const memberRemoveAddRejectAction = async (action, userId) => {
         if(action === "accept"){
             console.log(room);
-            acceptUser(userId, room.roomId, socket, setIsToBeRefreshed);
+            acceptUser(userId, room.roomId, socket, setIsToBeRefreshed, notify);
             setRefreshMembers(!refreshMemebers);
         }
         else if(action === "reject"){
-            removeUser(userId, room.roomId, socket, setIsToBeRefreshed);
+            removeUser(userId, room.roomId, socket, setIsToBeRefreshed, notify);
             setRefreshMembers(!refreshMemebers);
         }
         else if(action === "remove"){
-            removeUser(userId, room.roomId, socket, setIsToBeRefreshed);
+            removeUser(userId, room.roomId, socket, setIsToBeRefreshed, notify);
             setRefreshMembers(!refreshMemebers);
         }
     };
@@ -191,52 +186,38 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
 
 
     return (
-        <div style={{ position: "relative" }}>
-            {/* Image */}
+        <div className="relative">
             <img
                 src="src/assets/three-dots-vertical-svgrepo-com.svg"
                 alt="Details"
                 id="view-members"
                 onClick={() => setShowOptions((prev) => !prev)}
-                style={{ cursor: "pointer" }}
+                className="cursor-pointer w-5 h-5 opacity-80 hover:opacity-100"
             />
 
-            {/* Dropdown Menu */}
             {showOptions && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "100%",
-                        right: "0",
-                        backgroundColor: "#252525",
-                        border: "1px solid #ccc",
-                        borderRadius: "5px",
-                        zIndex: 10,
-                        boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                    }}
-                >
+                <div className="absolute top-full right-0 mt-1 bg-white text-neutral-900 border border-neutral-200 rounded-md shadow-lg z-10 overflow-hidden dark:bg-neutral-900 dark:text-neutral-100 dark:border-neutral-800">
                     <button
-                        onClick={() => {leaveGroup(room.roomId, socket, setIsToBeRefreshed); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
-                        style={menuButtonStyle}
+                        onClick={() => {leaveGroup(room.roomId, socket, setIsToBeRefreshed, notify); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                         Leave Group
                     </button>
                     <button
-                        onClick={() => {setIsRenameGroup(true);
-                        }}
-                        style={menuButtonStyle}
+                        onClick={() => {setIsRenameGroup(true);}}
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                         Rename Group
                     </button>
                     <button
                         onClick={() => handleOptionClick("members")}
-                        style={menuButtonStyle}
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                         Members
                     </button>
                     <button
-                        onClick={() => {endGroup(room.roomId, socket, setIsToBeRefreshed); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
-                        style={menuButtonStyle}
+                        onClick={() => {endGroup(room.roomId, socket, setIsToBeRefreshed, notify); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-neutral-100 dark:text-red-300 dark:hover:bg-neutral-800"
                     >
                         End Group
                     </button>
@@ -252,46 +233,33 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
                 />
             )}
             {isRenameGroup && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <h2>Rename Group</h2>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white text-neutral-900 border border-neutral-200 rounded-xl p-5 w-full max-w-sm shadow-xl dark:bg-neutral-900 dark:text-neutral-100 dark:border-neutral-800">
+                        <h2 className="text-lg font-semibold mb-3">Rename Group</h2>
                         <input
                             type="text"
                             placeholder="Enter new group name"
                             value={newGroupName}
-                            onChange={(e) => {setNewGroupName(e.target.value);
-                            }}
+                            onChange={(e) => {setNewGroupName(e.target.value);}}
                             required
+                            className="w-full rounded-md bg-neutral-100 border border-neutral-300 px-3 py-2 text-neutral-900 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-neutral-600"
                         />
-                        <div className="modal-buttons">
-                            <button onClick={()=>{
+                        <div className="mt-4 flex items-center justify-end gap-2">
+                            <button className="px-3 py-1.5 rounded-md border border-neutral-300 hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800" onClick={()=>{setIsRenameGroup(false)}}>Cancel</button>
+                            <button className="px-3 py-1.5 rounded-md bg-black text-white font-medium hover:opacity-90 dark:bg-white dark:text-black" onClick={()=>{
                                 console.log("Rename Group");
-                                renameGroup(room.roomId, newGroupName, socket, setIsToBeRefreshed);
+                                renameGroup(room.roomId, newGroupName, socket, setIsToBeRefreshed, notify);
                                 setIsRenameGroup(false);
                                 setTimeout(() => {
                                     setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);
                                 }, 500);
                             }}>Submit</button>
-                            <button onClick={()=>{setIsRenameGroup(false)}}>Cancel</button>
                         </div>
                     </div>
                 </div>
             )}
         </div>
     );
-};
-
-// Style for dropdown buttons
-const menuButtonStyle = {
-    display: "block",
-    width: "100%",
-    padding: "10px",
-    backgroundColor: "#252525",
-    color: "#ccc",
-    border: "none",
-    textAlign: "left",
-    cursor: "pointer",
-    fontSize: "14px",
 };
 
 export default RoomOptions;

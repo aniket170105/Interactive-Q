@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import "./PollComponent.css";
-import { use } from "react";
 
 const PollComponent = ({ message, pollOptions, voteAPI, currentUser, socket}) => {
     // Track the user's selected option
@@ -19,15 +17,15 @@ const PollComponent = ({ message, pollOptions, voteAPI, currentUser, socket}) =>
 
     // console.log("has voted : " + hasVoted + " " + message.text);
     return (
-        <div>
+    <div>
             {message.isPoll ? (
-                <div>
-                    <p>{message.text}</p>
+        <div>
+            <p className="font-medium mb-2">{message.text}</p>
                     {pollOptions.map((option) => {
                         const userVotedForThis = option.userVoted.some(user => user.userId === currentUser.userId);
 
                         return (
-                            <div key={option.optId} className="poll-option">
+                <div key={option.optId} className="flex items-center gap-2 py-1">
                                 <input
                                     type="radio"
                                     id={`option-${option.optId}`}
@@ -38,12 +36,12 @@ const PollComponent = ({ message, pollOptions, voteAPI, currentUser, socket}) =>
                                         voteAPI(option.optId, socket);
                                         setHasVoted(true);
                                     }}
-                                    className="custom-radio"
+                    className="accent-black dark:accent-white"
                                 />
-                                <label htmlFor={`option-${option.optId}`} style={{ marginLeft: "8px" }} className="poll-label">
+                <label htmlFor={`option-${option.optId}`} className="ml-2">
                                     {option.optText}
                                 </label>
-                                <span style={{ marginLeft: "8px" }} className="vote-count">
+                <span className="ml-2 text-sm text-neutral-600 dark:text-neutral-300">
                                     ({option.userVoted.length} votes)
                                 </span>
                             </div>

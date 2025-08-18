@@ -1,5 +1,10 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Keep minimal reset */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+body { @apply bg-white text-neutral-900 antialiased; }
+.dark body { @apply bg-neutral-900 text-neutral-100; }
