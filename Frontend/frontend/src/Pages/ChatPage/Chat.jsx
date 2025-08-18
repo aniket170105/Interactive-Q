@@ -17,8 +17,7 @@ const fetchMessages = async (roomId) => {
     });
     if (response.ok) {
         return await response.json();
-    }
-    else {
+    } else {
         console.log("Error while fetching messages");
         return [];
     }
@@ -235,7 +234,7 @@ const Chat = ({ room}) => {
     <div className="flex flex-col h-full max-h-full min-h-0">
             <div
                 id="chat-content"
-        className="flex-1 min-h-0 overflow-y-auto p-2 sm:p-4 pb-24 bg-neutral-50 text-neutral-900 dark:bg-neutral-900/40 dark:text-neutral-100"
+                className="relative z-20 flex-1 min-h-0 overflow-y-auto p-2 sm:p-4 pb-24 bg-white/60 dark:bg-neutral-700/25 backdrop-blur chat-wallpaper"
             >
                 {messages.map((messageDTO) => {
                     const { message, pollOptions } = messageDTO;
@@ -246,7 +245,7 @@ const Chat = ({ room}) => {
                             className={`flex mb-4 ${isSent ? 'justify-end' : 'justify-start'}`}
                         >
                             <div
-                                className={`px-3 py-2 rounded-2xl max-w-[85%] sm:max-w-[520px] shadow bg-white text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 break-words`}
+                                className={`px-3 py-2 rounded-2xl max-w-[85%] sm:max-w-[520px] shadow bg-white/95 dark:bg-neutral-700/85 border border-neutral-200/70 dark:border-neutral-600/60 break-words backdrop-blur`}
                             >
                                 {!message.isAnonymous && (
                                     <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1">
@@ -292,14 +291,14 @@ const Chat = ({ room}) => {
                                             ⋮
                                         </button>
                                         {dropdownOpen === message.messageId && (
-                                            <div className="absolute top-full right-0 bg-white text-neutral-900 border border-neutral-200 rounded-md shadow-md z-10 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700">
+                                            <div className="absolute top-full right-0 bg-white text-neutral-900 border border-neutral-200 rounded-md shadow-md z-50 dark:bg-neutral-700 dark:text-neutral-100 dark:border-neutral-600">
                                                 {messageDTO.userLiked.some(msgUser => msgUser.userId === user.userId) ? (
                                                     <button
                                                         onClick={() => {
                                                             unlikeMessageAPI(message.messageId, client);
                                                             setDropdownOpen(null);
                                                         }}
-                                                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                                                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-600"
                                                     >
                                                         Unlike
                                                     </button>
@@ -309,7 +308,7 @@ const Chat = ({ room}) => {
                                                             likeMessageAPI(message.messageId, client);
                                                             setDropdownOpen(null);
                                                         }}
-                                                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                                                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-600"
                                                     >
                                                         Like
                                                     </button>

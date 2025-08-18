@@ -2,9 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Keep minimal reset */
+/* Minimal reset */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body, #root { height: 100%; }
-body { @apply bg-white text-neutral-900 antialiased; }
-.dark body { @apply bg-neutral-900 text-neutral-100; }
+
+/* Global theming */
+body {
+	@apply bg-[radial-gradient(1200px_600px_at_0%_0%,_rgba(99,102,241,0.08),_transparent)]
+				 dark:bg-[radial-gradient(1200px_600px_at_100%_0%,_rgba(217,70,239,0.10),_transparent)]
+				 text-neutral-900 dark:text-neutral-100 antialiased font-sans;
+	color-scheme: light dark;
+}
+.dark body {
+	@apply bg-neutral-800;
+}
+
+/* Scrollbar styling */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { @apply bg-neutral-300/60 dark:bg-neutral-700/60 rounded-full; }
+*::-webkit-scrollbar-track { @apply bg-transparent; }
+
+/* Reusable components */
+@layer components {
+	.btn {
+		@apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition shadow-sm
+					 bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200;
+	}
+	.btn-outline {
+		@apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition border
+					 border-neutral-300 text-neutral-800 hover:bg-neutral-100
+					 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700;
+	}
+	.btn-ghost {
+		@apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100
+					 dark:text-neutral-200 dark:hover:bg-neutral-700;
+	}
+	.input {
+		@apply w-full rounded-lg bg-white/70 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700 
+					 px-3 py-2.5 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-none focus:ring-2 
+					 focus:ring-brand/40 dark:focus:ring-brand/40 backdrop-blur;
+	}
+	.card {
+		@apply rounded-2xl border border-neutral-200/70 dark:border-neutral-700/60 bg-white/70 dark:bg-neutral-800/60 
+					 shadow-glass backdrop-blur;
+	}
+	.glass {
+		@apply bg-white/60 dark:bg-neutral-800/50 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-glass;
+	}
+}
+
+/* Chat wallpaper (subtle, WhatsApp-like) */
+.chat-wallpaper {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160' fill='none'%3E%3Cg stroke='%23e5e7eb' stroke-opacity='0.25' stroke-width='1'%3E%3Ccircle cx='20' cy='20' r='2'/%3E%3Ccircle cx='80' cy='40' r='2'/%3E%3Ccircle cx='140' cy='20' r='2'/%3E%3Ccircle cx='40' cy='100' r='2'/%3E%3Ccircle cx='120' cy='120' r='2'/%3E%3Cpath d='M10 80h8M14 76v8'/%3E%3Cpath d='M100 20h10M105 15v10'/%3E%3Crect x='60' y='120' width='6' height='6'/%3E%3Crect x='130' y='70' width='6' height='6'/%3E%3C/g%3E%3C/svg%3E");
+	background-size: 220px 220px;
+	background-repeat: repeat;
+}
+.dark .chat-wallpaper {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160' fill='none'%3E%3Cg stroke='%23475569' stroke-opacity='0.35' stroke-width='1'%3E%3Ccircle cx='20' cy='20' r='2'/%3E%3Ccircle cx='80' cy='40' r='2'/%3E%3Ccircle cx='140' cy='20' r='2'/%3E%3Ccircle cx='40' cy='100' r='2'/%3E%3Ccircle cx='120' cy='120' r='2'/%3E%3Cpath d='M10 80h8M14 76v8'/%3E%3Cpath d='M100 20h10M105 15v10'/%3E%3Crect x='60' y='120' width='6' height='6'/%3E%3Crect x='130' y='70' width='6' height='6'/%3E%3C/g%3E%3C/svg%3E");
+}

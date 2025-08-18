@@ -59,8 +59,8 @@ const SignInPage = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
-            <div className="w-full max-w-md bg-neutral-900/60 backdrop-blur rounded-xl border border-neutral-800 p-6 shadow-lg">
+        <div className="min-h-screen flex items-center justify-center px-4">
+            <div className="w-full max-w-md card p-6">
                 <div className="text-center mb-4">
                     <h1 className="text-2xl font-semibold">Log In</h1>
                 </div>
@@ -81,7 +81,7 @@ const SignInPage = () => {
                             required
                             value={email}
                             onChange={(e) => { setEmail(e.target.value); }}
-                            className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-500"
+                            className="input"
                         />
                     </div>
                     <div>
@@ -92,11 +92,11 @@ const SignInPage = () => {
                             required
                             value={password}
                             onChange={(e) => { setPassword(e.target.value); }}
-                            className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-500"
+                            className="input"
                         />
                         <a href="/" className="inline-block mt-2 text-xs text-neutral-400 hover:text-white">Forgot password?</a>
                     </div>
-                    <button type="submit" className="w-full rounded-md bg-white text-black font-semibold py-2 hover:bg-white/90 transition">
+                    <button type="submit" className="w-full btn">
                         Continue
                     </button>
                 </form>
@@ -105,7 +105,7 @@ const SignInPage = () => {
                     Don't have an account? <Link to="/signup" className="underline hover:text-white">Sign Up</Link>
                 </p>
             </div>
-        </div>
+    </div>
     );
 
 };

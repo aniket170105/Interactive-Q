@@ -73,7 +73,7 @@ const RoomPage = ({ room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoine
 
     if (!roomDetails) {
         return (
-            <div className="flex-1 bg-neutral-50 dark:bg-neutral-900/50 flex items-center justify-center">
+            <div className="flex-1 bg-neutral-50 dark:bg-neutral-800/40 flex items-center justify-center">
                 <div className="text-neutral-600 dark:text-neutral-400">Select a room to view details.</div>
             </div>
         )
@@ -81,7 +81,7 @@ const RoomPage = ({ room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoine
     }
     return (
         <div className="flex-1 min-h-0 flex flex-col">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-200 bg-white/60 dark:border-neutral-800 dark:bg-neutral-900/60">
+            <div className="relative z-40 flex items-center justify-between px-3 py-2 border-b border-neutral-200/60 dark:border-neutral-700/50 glass">
                 <h2 className="font-semibold">{room.roomName}</h2>
                 <div>
                     <RoomOptions room={roomDetails} isNewGroupCreatedOrJoined={isNewGroupCreatedOrJoined} setIsNewGroupCreatedOrJoined={setIsNewGroupCreatedOrJoined}

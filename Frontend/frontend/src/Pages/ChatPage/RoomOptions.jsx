@@ -186,7 +186,7 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
 
 
     return (
-        <div className="relative">
+    <div className="relative z-50">
             <img
                 src="src/assets/three-dots-vertical-svgrepo-com.svg"
                 alt="Details"
@@ -196,28 +196,28 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
             />
 
             {showOptions && (
-                <div className="absolute top-full right-0 mt-1 bg-white text-neutral-900 border border-neutral-200 rounded-md shadow-lg z-10 overflow-hidden dark:bg-neutral-900 dark:text-neutral-100 dark:border-neutral-800">
+                <div className="absolute top-full right-0 mt-1 bg-white/95 dark:bg-neutral-700/90 backdrop-blur text-neutral-900 dark:text-neutral-100 rounded-md shadow-lg z-[60] overflow-hidden border border-neutral-200/60 dark:border-neutral-700/50">
                     <button
                         onClick={() => {leaveGroup(room.roomId, socket, setIsToBeRefreshed, notify); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
                     >
                         Leave Group
                     </button>
                     <button
                         onClick={() => {setIsRenameGroup(true);}}
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
                     >
                         Rename Group
                     </button>
                     <button
                         onClick={() => handleOptionClick("members")}
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
                     >
                         Members
                     </button>
                     <button
                         onClick={() => {endGroup(room.roomId, socket, setIsToBeRefreshed, notify); setIsNewGroupCreatedOrJoined(!isNewGroupCreatedOrJoined);}}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-neutral-100 dark:text-red-300 dark:hover:bg-neutral-800"
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-neutral-100 dark:text-red-300 dark:hover:bg-neutral-700"
                     >
                         End Group
                     </button>
@@ -234,7 +234,7 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
             )}
             {isRenameGroup && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="bg-white text-neutral-900 border border-neutral-200 rounded-xl p-5 w-full max-w-sm shadow-xl dark:bg-neutral-900 dark:text-neutral-100 dark:border-neutral-800">
+                    <div className="card p-5 w-full max-w-sm">
                         <h2 className="text-lg font-semibold mb-3">Rename Group</h2>
                         <input
                             type="text"
@@ -242,11 +242,11 @@ const RoomOptions = ({room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoi
                             value={newGroupName}
                             onChange={(e) => {setNewGroupName(e.target.value);}}
                             required
-                            className="w-full rounded-md bg-neutral-100 border border-neutral-300 px-3 py-2 text-neutral-900 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-neutral-600"
+                            className="input"
                         />
                         <div className="mt-4 flex items-center justify-end gap-2">
-                            <button className="px-3 py-1.5 rounded-md border border-neutral-300 hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800" onClick={()=>{setIsRenameGroup(false)}}>Cancel</button>
-                            <button className="px-3 py-1.5 rounded-md bg-black text-white font-medium hover:opacity-90 dark:bg-white dark:text-black" onClick={()=>{
+                            <button className="btn-outline" onClick={()=>{setIsRenameGroup(false)}}>Cancel</button>
+                            <button className="btn" onClick={()=>{
                                 console.log("Rename Group");
                                 renameGroup(room.roomId, newGroupName, socket, setIsToBeRefreshed, notify);
                                 setIsRenameGroup(false);

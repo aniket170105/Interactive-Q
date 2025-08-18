@@ -26,7 +26,7 @@ export const ToastProvider = ({ children }) => {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-start gap-2 rounded-md border px-3 py-2 shadow-md bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100 ${t.type === 'error' ? 'border-red-200 dark:border-red-800' : 'border-neutral-200 dark:border-neutral-700'}`}
+            className={`pointer-events-auto flex items-start gap-2 rounded-md border px-3 py-2 shadow-md bg-white text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 ${t.type === 'error' ? 'border-red-200 dark:border-red-700' : 'border-neutral-200 dark:border-neutral-600'}`}
           >
             <span className={`mt-0.5 text-sm ${t.type === 'error' ? 'text-red-600 dark:text-red-400' : 'text-neutral-700 dark:text-neutral-200'}`}>•</span>
             <div className="text-sm">
@@ -34,7 +34,7 @@ export const ToastProvider = ({ children }) => {
             </div>
             <button
               onClick={() => remove(t.id)}
-              className="ml-2 text-xs text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
+              className="ml-2 text-xs text-neutral-500 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
             >
               Close
             </button>
