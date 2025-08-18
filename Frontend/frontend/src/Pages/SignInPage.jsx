@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { API_BASE } from '../config.js'
 
 const signInUser = async (email, password) => {
     const user = {
@@ -8,7 +9,7 @@ const signInUser = async (email, password) => {
         "password": password
     };
     console.log(JSON.stringify(user));
-    const response = await fetch('http://localhost:8081/auth/v1/login', {
+    const response = await fetch(`${API_BASE}/auth/v1/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

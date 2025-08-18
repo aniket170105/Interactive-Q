@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { createPortal } from 'react-dom';
 import { useToast } from '../../components/ToastProvider.jsx'
 import { io } from 'socket.io-client';
+import { API_BASE } from '../../config.js'
 
 // const socket = io("http://localhost:3000");
 
 const sendMessage = async (message, isAnonymous, roomId, socket) => {
   const refreshToken = localStorage.getItem('refreshToken');
-  const response = await fetch('http://localhost:8081/user/room/message/send', {
+  const response = await fetch(`${API_BASE}/user/room/message/send`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -27,7 +28,7 @@ const sendMessage = async (message, isAnonymous, roomId, socket) => {
 
 const sendPoll = async (pollQuestion, pollOptions, isAnonymous, roomId, socket, notify) => {
   const refreshToken = localStorage.getItem('refreshToken');
-  const response = await fetch('http://localhost:8081/user/room/poll/send', {
+  const response = await fetch(`${API_BASE}/user/room/poll/send`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

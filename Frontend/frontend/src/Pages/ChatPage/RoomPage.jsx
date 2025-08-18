@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { io } from 'socket.io-client';
 import RoomOptions from "./RoomOptions";
 import Chat from "./Chat";
+import { API_BASE, SOCKET_URL } from '../../config.js'
 
 const fetchUser = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/Profile', {
+    const response = await fetch(`${API_BASE}/user/Profile`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -36,7 +37,7 @@ const RoomPage = ({ room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoine
     useEffect(() => {
         setRoomDetails(room);
         if (room) {
-            const socket = io("http://localhost:3000");
+            const socket = io(SOCKET_URL);
             socket.emit("joinRoom", room.roomId);
             setClient(socket);
 
@@ -82,7 +83,7 @@ const RoomPage = ({ room, isNewGroupCreatedOrJoined, setIsNewGroupCreatedOrJoine
     return (
         <div className="flex-1 min-h-0 flex flex-col">
             <div className="relative z-40 flex items-center justify-between px-3 py-2 border-b border-neutral-200/60 dark:border-neutral-700/50 glass">
-                <h2 className="font-semibold">{room.roomName}</h2>
+                <h2 className="font-semibold">{room.roomName} (id = {room.roomId})</h2>
                 <div>
                     <RoomOptions room={roomDetails} isNewGroupCreatedOrJoined={isNewGroupCreatedOrJoined} setIsNewGroupCreatedOrJoined={setIsNewGroupCreatedOrJoined}
                         socket={client} setIsToBeRefreshed={setIsToBeRefreshed} />

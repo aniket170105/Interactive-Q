@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import RoomPage from './RoomPage';
 import { ThemeToggleButton } from '../../theme/ThemeProvider.jsx'
+import { API_BASE } from '../../config.js'
 import { useToast } from '../../components/ToastProvider.jsx'
 
 const refreshTokens = async () => {
     const token = localStorage.getItem('sessionToken');
-    const response = await fetch('http://localhost:8081/auth/v1/refreshToken', {
+    const response = await fetch(`${API_BASE}/auth/v1/refreshToken`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -28,7 +29,7 @@ const refreshTokens = async () => {
 
 const fetchRooms = async (setRoom, setFilteredRooms) => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/allRoom', {
+    const response = await fetch(`${API_BASE}/user/allRoom`, {
         method: 'GET',
         headers: {
             "Authorization": `Bearer ${refreshToken}`
@@ -50,7 +51,7 @@ const fetchRooms = async (setRoom, setFilteredRooms) => {
 
 const joinGroupAPI = async (roomName) => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/createRoom', {
+    const response = await fetch(`${API_BASE}/user/createRoom`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ const joinGroupAPI = async (roomName) => {
 
 const joinNewGroupAPI = async (roomId) => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/joinRoom', {
+    const response = await fetch(`${API_BASE}/user/joinRoom`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -87,7 +88,7 @@ const joinNewGroupAPI = async (roomId) => {
 };
 const fetchUser = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/Profile', {
+    const response = await fetch(`${API_BASE}/user/Profile`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

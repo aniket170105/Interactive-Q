@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import ChatInput from "./MessageSend";
 import { io } from 'socket.io-client';
 import PollComponent from "./PollComponent";
-import { use } from "react";
+import { API_BASE, SOCKET_URL } from '../../config.js'
 
 
 const fetchMessages = async (roomId) => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/room/getMessages', {
+    const response = await fetch(`${API_BASE}/user/room/getMessages`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ const fetchMessages = async (roomId) => {
 
 const fetchUser = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/Profile', {
+    const response = await fetch(`${API_BASE}/user/Profile`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ const fetchUser = async () => {
 const isUserAuthorizedInRoom = async (roomId) => {
     console.log(roomId);
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/room/isUserAuthorized', {
+    const response = await fetch(`${API_BASE}/user/room/isUserAuthorized`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const findCurrentUserMessage = (message, user) => {
 
 const voteAPI = async (optionId, socket) => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/room/poll/vote', {
+    const response = await fetch(`${API_BASE}/user/room/poll/vote`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const voteAPI = async (optionId, socket) => {
 
 const likeMessageAPI = async (messageId, socket) => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/room/message/like', {
+    const response = await fetch(`${API_BASE}/user/room/message/like`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ const likeMessageAPI = async (messageId, socket) => {
 
 const unlikeMessageAPI = async (messageId, socket) => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch('http://localhost:8081/user/room/message/unlike', {
+    const response = await fetch(`${API_BASE}/user/room/message/unlike`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ const Chat = ({ room}) => {
     const [client, setClient] = useState(null);
 
     useEffect(() => {
-        const socket = io("http://localhost:3000");
+    const socket = io(SOCKET_URL);
         setClient(socket);
         setMessages([]);
         fetchMessages(room.roomId).then((data) => {
@@ -231,58 +231,42 @@ const Chat = ({ room}) => {
     };
 
     return (
-    <div className="flex flex-col h-full max-h-full min-h-0">
+        <div className="flex flex-col h-full max-h-full min-h-0">
             <div
                 id="chat-content"
                 className="relative z-20 flex-1 min-h-0 overflow-y-auto p-2 sm:p-4 pb-24 bg-white/60 dark:bg-neutral-700/25 backdrop-blur chat-wallpaper"
             >
                 {messages.map((messageDTO) => {
                     const { message, pollOptions } = messageDTO;
-                    const isSent = findCurrentUserMessage(message, user); //Logic to show one in right and one in left
+                    const isSent = user ? findCurrentUserMessage(message, user) : false; // right vs left
                     return (
                         <div
                             key={message.messageId}
                             className={`flex mb-4 ${isSent ? 'justify-end' : 'justify-start'}`}
                         >
-                            <div
-                                className={`px-3 py-2 rounded-2xl max-w-[85%] sm:max-w-[520px] shadow bg-white/95 dark:bg-neutral-700/85 border border-neutral-200/70 dark:border-neutral-600/60 break-words backdrop-blur`}
-                            >
+                            <div className={
+                                `px-3 py-2 rounded-2xl max-w-[85%] sm:max-w-[520px] shadow bg-white/95 dark:bg-neutral-700/85 border border-neutral-200/70 dark:border-neutral-600/60 break-words backdrop-blur`
+                            }>
                                 {!message.isAnonymous && (
                                     <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1">
                                         {message.user.name}
                                     </p>
                                 )}
 
-                                {message.isPoll ?
-                                    (<PollComponent message={message} pollOptions={pollOptions} voteAPI={voteAPI} currentUser={user} socket={client}/>)
-                                    : (<p>{message.text}</p>)
-                                    // message.isPoll ? (
-                                    //     <div>
-                                    //         <p style={{ fontWeight: "bold" }}>{message.text}</p>
-                                    //         {pollOptions.map((option) => (
-                                    //             <div key={option.optId} className="poll-option">
-                                    //                 <input
-                                    //                     type="radio"
-                                    //                     id={`option-${option.optId}`}
-                                    //                     name={`poll-${message.messageId}`}
-                                    //                 />
-                                    //                 <label htmlFor={`option-${option.optId}`} style={{ marginLeft: "8px" }}>
-                                    //                     {option.optText}
-                                    //                 </label>
-                                    //                 <span style={{ marginLeft: "8px" }}>
-                                    //                     ({option.userVoted.length} votes)
-                                    //                 </span>
-                                    //             </div>
-                                    //         ))}
-                                    //     </div>
-                                    // ) : (
-                                    //     <p>{message.text}</p>
-                                    // )
-                                }
-                                <div className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-2">{new Date(message.postTime).toLocaleTimeString()}</div>
+                                {message.isPoll ? (
+                                    <PollComponent message={message} pollOptions={pollOptions} voteAPI={voteAPI} currentUser={user} socket={client} />
+                                ) : (
+                                    <p>{message.text}</p>
+                                )}
+
+                                <div className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-2">
+                                    {new Date(message.postTime).toLocaleTimeString()}
+                                </div>
 
                                 <div className="flex items-center justify-between mt-2">
-                                    <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{messageDTO.userLiked ? messageDTO.userLiked.length : 0} likes</span>
+                                    <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                        {messageDTO.userLiked ? messageDTO.userLiked.length : 0} likes
+                                    </span>
                                     <div className="relative mt-1">
                                         <button
                                             onClick={() => toggleDropdown(message.messageId)}
@@ -292,7 +276,7 @@ const Chat = ({ room}) => {
                                         </button>
                                         {dropdownOpen === message.messageId && (
                                             <div className="absolute top-full right-0 bg-white text-neutral-900 border border-neutral-200 rounded-md shadow-md z-50 dark:bg-neutral-700 dark:text-neutral-100 dark:border-neutral-600">
-                                                {messageDTO.userLiked.some(msgUser => msgUser.userId === user.userId) ? (
+                                                {messageDTO.userLiked?.some((msgUser) => msgUser.userId === user?.userId) ? (
                                                     <button
                                                         onClick={() => {
                                                             unlikeMessageAPI(message.messageId, client);

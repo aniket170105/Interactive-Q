@@ -54,6 +54,21 @@ services:
       - interactive-q-network
     restart: unless-stopped
 
+  # Frontend (Vite build served by Node 'serve', no Nginx)
+  frontend:
+    build:
+      context: ./Frontend/frontend
+      dockerfile: Dockerfile
+    container_name: interactive-q-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - java-backend
+      - nodejs-backend
+    networks:
+      - interactive-q-network
+    restart: unless-stopped
+
 volumes:
   mysql_data:
 

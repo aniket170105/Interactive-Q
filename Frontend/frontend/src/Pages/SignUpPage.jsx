@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { redirect } from "react-router-dom";
+import { API_BASE } from '../config.js'
 
 const signUpUser = async (name, email, password) => {
     const user = {
@@ -10,7 +11,7 @@ const signUpUser = async (name, email, password) => {
         "password" : password
     };
     console.log(JSON.stringify(user));
-    const response = await fetch('http://localhost:8081/auth/v1/signup', {
+    const response = await fetch(`${API_BASE}/auth/v1/signup`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
